@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <title>Đuổi hình bắt chữ</title>
+  </head>
+  <body>
+    <header>
+      <div>Điểm: <strong class="score">0</strong></div>
+      <div>Gơi ý còn <strong class="suggest">3</strong> lần</div>
+      <div>Thời gian còn lại: <strong class="time">30 s</strong></div>
+    </header>
+    <section id="image_question">
+      <img src="" alt="image question 1" />
+    </section>
+    <section id="answer"></section>
+    <section id="list_words">
+      <ul class="select_word"></ul>
+    </section>
+    <section id="result">
+      <p class="status_result correct">Chính Xác !</p>
+      <p class="answer_result">Đáp án là: BÁO CÁO</p>
+    </section>
+    <section id="buttons">
+      <button class="btn btn_suggest">Gợi ý</button>
+      <button class="btn btn_next">Tiếp theo</button>
+    </section>
+
+    <script src="Question/question.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
