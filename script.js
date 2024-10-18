@@ -87,97 +87,6 @@ const displayQuestion = function (question) {
   displayListCells(question.answer);
 };
 
-displayQuestion(questions[0]);
-
-// Xử lý phần gợi ý câu hỏi. 8.5
-btnSuggest.addEventListener("click", function () {
-  const cellAnswer = document.querySelectorAll(".cell_answer");
-  const arrCell = [];
-  if (sg === 0) {
-    alert("Bạn đã hết lượt xem gợi ý");
-    suggestEL.textContent = 0;
-  } else if (sg > 0 && sg < 4) {
-    const arrLetter = [];
-    if (sg < 1) {
-      suggestEL.textContent = 0;
-    }
-
-    // Remove element space
-    cellAnswer.forEach((cell) => {
-      if (cell.innerText !== "") {
-        arrLetter.push(cell.innerText);
-      }
-    });
-    if (sg === 3 && arrLetter.length === 0) {
-      arrCharacterAnswer = arrAnswer.filter((el) => el !== " ");
-    } else if (sg === 3 && arrLetter.length > 0) {
-      // Remove letter exits
-      const arrCharacter = arrAnswer.filter((el) => el !== " ");
-      arrCharacterAnswer = arrCharacter.slice(arrLetter.length);
-      console.log(arrCharacterAnswer);
-    }
-
-    len = arrCharacterAnswer.length;
-    // Get random letter of array answer
-    let index = Math.trunc(Math.random() * len);
-    let letter = arrCharacterAnswer[index];
-    console.log(letter);
-    // Remove letter suggested
-    arrCharacterAnswer.splice(index, 1);
-    console.log(arrCharacterAnswer);
-    // Get index of arrAnswer
-    let stt;
-    for (let i = 0; i < arrAnswer.length; i++) {
-      if (arrAnswer[i] === letter) {
-        stt = i;
-      }
-    }
-    arrAnswer[stt] = "*";
-    console.log(stt);
-    // Display cell suggest random
-    cellAnswer.forEach((cell) => {
-      if (cell.dataset.stt == stt) {
-        cell.innerText = letter;
-      }
-    });
-    sg--;
-    if (sg >= 0) {
-      suggestEL.textContent = sg;
-    }
-    cellAnswer.forEach((cell) => {
-      if (cell.innerText === "") {
-        arrCell.push(cell);
-      }
-    });
-    if (arrCell.length === 0) {
-      checkAnswer(cellAnswer);
-    }
-  }
-});
-
-// Ham dem nguoc thoi gian
-const countdown = function () {
-    const getTime = function () {
-        if (time < 0 && q < questions.length) {
-            nextQuestion();
-            timeEl.textContent = "30 s";
-            sg = 3;
-        } else if (time == 0 && q === questions.length) {
-            timeEl.textContent = "0 s";
-        } else {
-            timeEl.textContent = time + " s";
-            time--;
-        }
-        if (time < 6) {
-            timeEl.style.color = "red";
-        }
-        if (time > 5) {
-            timeEl.style.color = "black";
-        }
-    };
-    intervalID = setInterval(getTime, 1000);
-};
-
 // Convert original
 const convertAnswerInSystem = function (systemAnswer) {
     const arrCharacter = getArrayCharacter(systemAnswer);
@@ -228,6 +137,29 @@ const checkAnswer = function (cellAnswer) {
     // Display answer
     answerResultEl.textContent = `Đáp án là: ${questions[q - 1].answer}`;
     clearInterval(intervalID);
+};
+
+// Ham dem nguoc thoi gian
+const countdown = function () {
+    const getTime = function () {
+        if (time < 0 && q < questions.length) {
+            nextQuestion();
+            timeEl.textContent = "30 s";
+            sg = 3;
+        } else if (time == 0 && q === questions.length) {
+            timeEl.textContent = "0 s";
+        } else {
+            timeEl.textContent = time + " s";
+            time--;
+        }
+        if (time < 6) {
+            timeEl.style.color = "red";
+        }
+        if (time > 5) {
+            timeEl.style.color = "black";
+        }
+    };
+    intervalID = setInterval(getTime, 1000);
 };
 
 // Function next question
@@ -294,3 +226,70 @@ answerEl.addEventListener("click", function (e) {
         e.target.innerText = "";
     }
 })
+
+arrAnswer = getArrayCharacter(questions[q - 1].answer);
+// Xử lý phần gợi ý câu hỏi. 8.5
+btnSuggest.addEventListener("click", function () {
+    const cellAnswer = document.querySelectorAll(".cell_answer");
+    const arrCell = [];
+    if (sg === 0) {
+        alert("Bạn đã hết lượt xem gợi ý");
+        suggestEL.textContent = 0;
+    } else if (sg > 0 && sg < 4) {
+        const arrLetter = [];
+        if (sg < 1) {
+            suggestEL.textContent = 0;
+        }
+
+        // Remove element space
+        cellAnswer.forEach((cell) => {
+            if (cell.innerText !== "") {
+                arrLetter.push(cell.innerText);
+            }
+        });
+        if (sg === 3 && arrLetter.length === 0) {
+            arrCharacterAnswer = arrAnswer.filter((el) => el !== " ");
+        } else if (sg === 3 && arrLetter.length > 0) {
+            // Remove letter exits
+            const arrCharacter = arrAnswer.filter((el) => el !== " ");
+            arrCharacterAnswer = arrCharacter.slice(arrLetter.length);
+            console.log(arrCharacterAnswer);
+        }
+
+        len = arrCharacterAnswer.length;
+        // Get random letter of array answer
+        let index = Math.trunc(Math.random() * len);
+        let letter = arrCharacterAnswer[index];
+        console.log(letter);
+        // Remove letter suggested
+        arrCharacterAnswer.splice(index, 1);
+        console.log(arrCharacterAnswer);
+        // Get index of arrAnswer
+        let stt;
+        for (let i = 0; i < arrAnswer.length; i++) {
+            if (arrAnswer[i] === letter) {
+                stt = i;
+            }
+        }
+        arrAnswer[stt] = "*";
+        console.log(stt);
+        // Display cell suggest random
+        cellAnswer.forEach((cell) => {
+            if (cell.dataset.stt == stt) {
+                cell.innerText = letter;
+            }
+        });
+        sg--;
+        if (sg >= 0) {
+            suggestEL.textContent = sg;
+        }
+        cellAnswer.forEach((cell) => {
+            if (cell.innerText === "") {
+                arrCell.push(cell);
+            }
+        });
+        if (arrCell.length === 0) {
+            checkAnswer(cellAnswer);
+        }
+    }
+});
