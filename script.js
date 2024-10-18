@@ -20,3 +20,26 @@ let len;
 let arrAnswer;
 let time = 30;
 let intervalID;
+
+// Ham dem nguoc thoi gian
+const countdown = function () {
+    const getTime = function () {
+        if (time < 0 && q < questions.length) {
+            nextQuestion();
+            timeEl.textContent = "30 s";
+            sg = 3;
+        } else if (time == 0 && q === questions.length) {
+            timeEl.textContent = "0 s";
+        } else {
+            timeEl.textContent = time + " s";
+            time--;
+        }
+        if (time < 6) {
+            timeEl.style.color = "red";
+        }
+        if (time > 5) {
+            timeEl.style.color = "black";
+        }
+    };
+    intervalID = setInterval(getTime, 1000);
+};
