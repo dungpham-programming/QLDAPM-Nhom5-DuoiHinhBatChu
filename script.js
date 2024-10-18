@@ -82,7 +82,6 @@ const displayListCells = function (answer) {
 };
 
 // Hiển thị câu đố hoàn chỉnh. <8.2>
-
 const displayQuestion = function (question) {
   imageEl.src = question.url_image; //Hiển thị hình ảnh câu đố. <8.2.1>
   displayListCells(question.answer);
@@ -90,7 +89,7 @@ const displayQuestion = function (question) {
 
 displayQuestion(questions[0]);
 
-//Chức năng gợi ý. <8.5>
+// Xử lý phần gợi ý câu hỏi. 8.5
 btnSuggest.addEventListener("click", function () {
   const cellAnswer = document.querySelectorAll(".cell_answer");
   const arrCell = [];
