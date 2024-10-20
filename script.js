@@ -11,6 +11,9 @@ const resultEl = document.querySelector("#result");
 const statusResultEl = document.querySelector(".status_result");
 const answerResultEl = document.querySelector(".answer_result");
 const suggestEL = document.querySelector(".suggest");
+const btnTestModal = document.querySelector(".test-modal");
+const btnAgree = document.querySelector(".btn-agree");
+const modal = bootstrap.Modal.getOrCreateInstance('#notification');
 
 let q = 1;
 let score = 0;
@@ -24,67 +27,67 @@ let intervalID;
 // Tạo ngẫu nhiên chuỗi chữ cái bao gồm đáp án.
 // Tạo ngẫu nhiên chuỗi ký tự
 const getRandomLetter = function () {
-  const alphabet = "ABCDEGHIKLMNOPQRSTUVXY";
-  const randomIndex = Math.trunc(Math.random() * alphabet.length);
-  return alphabet[randomIndex];
+    const alphabet = "ABCDEGHIKLMNOPQRSTUVXY";
+    const randomIndex = Math.trunc(Math.random() * alphabet.length);
+    return alphabet[randomIndex];
 };
 // Chuyển đổi đáp án => Mảng ký tự
 const getArrayCharacter = function (answer) {
-  const normalizedStr = answer.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  const arrCharacter = normalizedStr.split("");
-  return arrCharacter;
+    const normalizedStr = answer.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const arrCharacter = normalizedStr.split("");
+    return arrCharacter;
 };
+
 // Trộn ngẫu nhiên
 function shuffleArray(array) {
-  let arrShuffle = [];
-  let len = array.length;
-  for (let i = 0; i < len; i++) {
-    const randomIndex = Math.floor(Math.random() * array.length);
-    arrShuffle.push(array[randomIndex]);
-    array.splice(randomIndex, 1);
-  }
-  return arrShuffle;
+    let arrShuffle = [];
+    let len = array.length;
+    for (let i = 0; i < len; i++) {
+        const randomIndex = Math.floor(Math.random() * array.length);
+        arrShuffle.push(array[randomIndex]);
+        array.splice(randomIndex, 1);
+    }
+    return arrShuffle;
 }
 
 // Hiển thị ô chứa ký tự cho người chơi lựa chọn <8.2.2>
-
 const displayCellsSelect = function (arrCharacter) {
-  let arrCellsSelect = [];
-  arrCellsSelect = arrCharacter.filter((c) => c !== " ");
-  let len = arrCellsSelect.length;
-  for (let i = 0; i < len; i++) {
-    arrCellsSelect.push(getRandomLetter());
-  }
-  // console.log(arrCellsSelect);
-  const arrCellsShuff = shuffleArray(arrCellsSelect);
-  for (let i = 0; i < arrCellsShuff.length; i++) {
-    let html = `<li class="word" data-cell='${i}'>${arrCellsShuff[i]}</li>`;
-    selectWordEl.innerHTML += html;
-  }
+    let arrCellsSelect = [];
+    arrCellsSelect = arrCharacter.filter((c) => c !== " ");
+    let len = arrCellsSelect.length;
+    for (let i = 0; i < len; i++) {
+        arrCellsSelect.push(getRandomLetter());
+    }
+    // console.log(arrCellsSelect);
+    const arrCellsShuff = shuffleArray(arrCellsSelect);
+    for (let i = 0; i < arrCellsShuff.length; i++) {
+        let html = `<li class="word" data-cell='${i}'>${arrCellsShuff[i]}</li>`;
+        selectWordEl.innerHTML += html;
+    }
 };
 
 // Hiển thị ô trống dành cho câu trả lời.
 const displayCellsAnswer = function (arrCharacter) {
-  let html = "";
-  for (let i = 0; i < arrCharacter.length; i++) {
-    html = `<div class="${
-      arrCharacter[i] === " " ? "space" : "cell_answer"
-    }" data-cell="" data-stt='${i}'></div>`;
-    answerEl.innerHTML += html;
-  }
+    let html = "";
+    for (let i = 0; i < arrCharacter.length; i++) {
+        html = `<div class="${
+            arrCharacter[i] === " " ? "space" : "cell_answer"
+        }" data-cell="" data-stt='${i}'></div>`;
+        answerEl.innerHTML += html;
+    }
 };
 
 // HIển thị kết hợp ô trống cho câu trả lời & ô chứa ký tự cho người chơi lựa chọn
 const displayListCells = function (answer) {
-  const arrCharacter = getArrayCharacter(answer);
-  displayCellsAnswer(arrCharacter);
-  displayCellsSelect(arrCharacter);
+    const arrCharacter = getArrayCharacter(answer);
+    displayCellsAnswer(arrCharacter);
+    displayCellsSelect(arrCharacter);
 };
 
 // Hiển thị câu đố hoàn chỉnh. <8.2>
 const displayQuestion = function (question) {
-  imageEl.src = question.url_image; //Hiển thị hình ảnh câu đố. <8.2.1>
-  displayListCells(question.answer);
+    imageEl.src = question.url_image; //Hiển thị hình ảnh câu đố. <8.2.1>
+    displayListCells(question.answer);
 };
 
 // Convert original
@@ -181,6 +184,14 @@ const nextQuestion = function () {
     } else {
         alert("Bạn đã hoàn thành tất cả câu hỏi");
     }
+}
+
+const openModal = function () {
+    modal.show();
+}
+
+const closeModal = function () {
+    modal.hide();
 }
 
 displayQuestion(questions[0]);
@@ -293,3 +304,28 @@ btnSuggest.addEventListener("click", function () {
         }
     }
 });
+
+// Test hiển thị Modal và gán dữ liệu của chức năng đã yêu cầu Modal vào nút Đồng ý (Ở đây là chức năng test-modal)
+btnTestModal.addEventListener("click", function () {
+    document.querySelector(".btn-agree").setAttribute('data-request', 'test-modal');
+    openModal();
+});
+
+// Hàm handle khi click nút Đồng ý (Đây là hàm chung, chia switch case để handle các trường hợp khi ấn nút đồng ý)
+btnAgree.addEventListener("click", function () {
+    const requestValue = document.querySelector(".btn-agree").getAttribute('data-request');
+
+    switch (requestValue) {
+        case 'test-modal':
+            // Xử lý sự kiện ở đây. Mẫu ở đây là hiện lên Alert
+            alert(`Bạn dã bấm vào nút Đông ý từ chức năng ${requestValue}`);
+            closeModal();
+            break;
+
+        // Các chức năng khác cứ thế tiếp tục handle
+        default:
+            break;
+    }
+
+    closeModal();
+})
