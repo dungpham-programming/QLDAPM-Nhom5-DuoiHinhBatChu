@@ -8,35 +8,44 @@
     <title>Đuổi hình bắt chữ</title>
 </head>
 <body>
-<div class="container">
-    <h1 class="title text-center my-3">Trò chơi Đuổi hình bắt chữ</h1>
-    <div class="d-flex g-0">
-        <div class="col-9" style="border: 1px solid black">
-            <header>
-                <div>Điểm: <strong class="score">0</strong></div>
-                <div>Gơi ý còn <strong class="suggest">3</strong> lần</div>
-                <div>Thời gian còn lại: <strong class="time">30 s</strong></div>
-            </header>
-            <section id="image_question">
-                <img src="" alt="image question 1"/>
-            </section>
-            <section id="answer"></section>
-            <section id="list_words">
-                <ul class="select_word"></ul>
-            </section>
-            <section id="result">
-                <p class="status_result correct">Chính Xác !</p>
-                <p class="answer_result">Đáp án là: BÁO CÁO</p>
-            </section>
-            <section id="buttons" class="mb-4">
-                <button class="btn btn_suggest">Gợi ý</button>
-                <button class="btn btn_next">Tiếp theo</button>
-            </section>
-        </div>
+<div class="start">
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <img src="images/remove-bg-icon-hd.png" alt="" style="width: 800px">
+        <button type="button" class="btn btn-play">Chơi ngay</button>
+    </div>
 
-        <div class="col-3 ms-4" style="border: 1px solid black">
-            <p>Bảng xếp hạng sẽ được nằm ở vị trí này</p>
-            <button type="button" class="btn btn-primary w-100 test-modal">Test hiển thị modal</button>
+</div>
+<div class="playing" style="display: none">
+    <div class="container">
+        <h1 class="title text-center pt-3 mb-3">Trò chơi Đuổi hình bắt chữ</h1>
+        <div class="d-flex g-0">
+            <div class="col-9" style="border: 1px solid black">
+                <header>
+                    <div>Điểm: <strong class="score">0</strong></div>
+                    <div>Gơi ý còn <strong class="suggest">3</strong> lần</div>
+                    <div>Thời gian còn lại: <strong class="time">30 s</strong></div>
+                </header>
+                <section id="image_question">
+                    <img class="image_question" src="" alt="image question 1"/>
+                </section>
+                <section id="answer"></section>
+                <section id="list_words">
+                    <ul class="select_word"></ul>
+                </section>
+                <section id="result">
+                    <p class="status_result correct">Chính Xác !</p>
+                    <p class="answer_result">Đáp án là: BÁO CÁO</p>
+                </section>
+                <section id="buttons" class="mb-4">
+                    <button class="btn btn_suggest">Gợi ý</button>
+                    <button class="btn btn_next">Tiếp theo</button>
+                </section>
+            </div>
+
+            <div class="col-3 ms-4" style="border: 1px solid black">
+                <p>Bảng xếp hạng sẽ được nằm ở vị trí này</p>
+                <button type="button" class="btn btn-primary w-100 test-modal">Test hiển thị modal</button>
+            </div>
         </div>
     </div>
 </div>

@@ -2,7 +2,7 @@
 // Select element
 const scoreEl = document.querySelector(".score");
 const timeEl = document.querySelector(".time");
-const imageEl = document.querySelector("img");
+const imageEl = document.querySelector("img.image_question");
 const answerEl = document.querySelector("#answer");
 const selectWordEl = document.querySelector(".select_word");
 const btnSuggest = document.querySelector(".btn_suggest");
@@ -13,7 +13,10 @@ const answerResultEl = document.querySelector(".answer_result");
 const suggestEL = document.querySelector(".suggest");
 const btnTestModal = document.querySelector(".test-modal");
 const btnAgree = document.querySelector(".btn-agree");
+const btnPlaying = document.querySelector(".btn-play")
 const modal = bootstrap.Modal.getOrCreateInstance('#notification');
+const startZone = document.querySelector(".start");
+const playingZone = document.querySelector(".playing");
 
 let q = 1;
 let score = 0;
@@ -23,6 +26,7 @@ let len;
 let arrAnswer;
 let time = 30;
 let intervalID;
+let playing = false;
 
 // Tạo ngẫu nhiên chuỗi chữ cái bao gồm đáp án.
 // Tạo ngẫu nhiên chuỗi ký tự
@@ -194,9 +198,6 @@ const closeModal = function () {
     modal.hide();
 }
 
-displayQuestion(questions[0]);
-countdown();
-
 // Khi bấm vào nút Tiếp theo
 btnNext.addEventListener("click", function () {
     nextQuestion();
@@ -326,6 +327,15 @@ btnAgree.addEventListener("click", function () {
         default:
             break;
     }
-
     closeModal();
+});
+
+btnPlaying.addEventListener("click", function () {
+    if (!playing) {
+        playing = true;
+        startZone.style.display = "none";
+        playingZone.style.display = "block";
+        displayQuestion(questions[0]);
+        countdown();
+    }
 })
