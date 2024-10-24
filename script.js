@@ -17,6 +17,7 @@ const btnPlaying = document.querySelector(".btn-play")
 const modal = bootstrap.Modal.getOrCreateInstance('#notification');
 const startZone = document.querySelector(".start");
 const playingZone = document.querySelector(".playing");
+const questionsPerTeam = 10;
 
 let q = 1;
 let score = 0;
@@ -27,6 +28,11 @@ let arrAnswer;
 let time = 30;
 let intervalID;
 let playing = false;
+// Tạm thời để mặc định là 4 để phân chia các pack câu hỏi
+let totalTeam = 4;
+let nowTeam = 1;
+let allPacks = [];
+let nowPack;
 
 // Tạo ngẫu nhiên chuỗi chữ cái bao gồm đáp án.
 // Tạo ngẫu nhiên chuỗi ký tự
@@ -88,6 +94,40 @@ const displayListCells = function (answer) {
     displayCellsSelect(arrCharacter);
 };
 
+// Hàm random index của câu hỏi, trả về 1 mảng gồm các index đã được xáo trộn của câu hỏi trong question.js
+const shuffleIndexQuestionArray = function (array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// Hàm tạo ra các bộ (pack) câu hỏi cho các team
+const createPacksQuestion = function () {
+    if (questions.length < totalTeam * questionsPerTeam) {
+        throw new Error("Tối đa chỉ có thể có 4 đội.");
+    }
+
+    // Tạo mảng để chứa index của câu hổi
+    const indexQuestionArray = Array.from({ length: questions.length }, (_, i) => i);
+    const shuffleIndexes = shuffleIndexQuestionArray(indexQuestionArray);
+
+    // Tạo mảng để chứa các pack câu hỏi dựa trên số lượng team
+    const packs = Array.from({ length: totalTeam }, () => []);
+
+    // Thêm câu hỏi vào các pack
+    for (let i = 0; i < shuffleIndexes.length; i++) {
+        const teamIndex = Math.floor(i / questionsPerTeam);
+        // Do teamIndex bắt đầu từ 0 => teamIndex nhỏ hơn totalItem
+        if (teamIndex < totalTeam) {
+            packs[teamIndex].push(questions[shuffleIndexes[i]]);
+        } else break;
+    }
+
+    return packs;
+}
+
 // Hiển thị câu đố hoàn chỉnh. <8.2>
 const displayQuestion = function (question) {
     imageEl.src = question.url_image; //Hiển thị hình ảnh câu đố. <8.2.1>
@@ -126,12 +166,13 @@ const checkAnswer = function (cellAnswer) {
     });
 
     // Convert original answer in system => Answer not contains space character
-    const strCharacter = convertAnswerInSystem(questions[q - 1].answer);
+    const strCharacter = convertAnswerInSystem(nowPack[q - 1].answer);
 
     if (answer === strCharacter) {
         console.log("Correct !");
         // Initial score is 10. Handle score when time over 15s in countdown()
         updateScore(10);
+        statusResultEl.classList.remove("incorrect");
         statusResultEl.classList.add("correct");
         statusResultEl.textContent = "Chính Xác!";
     } else {
@@ -142,18 +183,18 @@ const checkAnswer = function (cellAnswer) {
         statusResultEl.textContent = "Không Chính Xác!";
     }
     // Display answer
-    answerResultEl.textContent = `Đáp án là: ${questions[q - 1].answer}`;
+    answerResultEl.textContent = `Đáp án là: ${nowPack[q - 1].answer}`;
     clearInterval(intervalID);
 };
 
 // Ham dem nguoc thoi gian
 const countdown = function () {
     const getTime = function () {
-        if (time < 0 && q < questions.length) {
+        if (time < 0 && q < nowPack.length) {
             nextQuestion();
             timeEl.textContent = "30 s";
             sg = 3;
-        } else if (time == 0 && q === questions.length) {
+        } else if (time == 0 && q === nowPack.length) {
             timeEl.textContent = "0 s";
         } else {
             timeEl.textContent = time + " s";
@@ -172,30 +213,64 @@ const countdown = function () {
 // Function next question
 const nextQuestion = function () {
     clearInterval(intervalID);
-    if (q < questions.length) {
+    if (q < 10) {
         imageEl.src = "";
         answerEl.innerHTML = "";
         selectWordEl.innerHTML = "";
 
-        displayQuestion(questions[q]);
+        displayQuestion(nowPack[q]);
         q++;
         sg = 3;
         suggestEL.textContent = sg;
         selectWordEl.style.display = "flex";
         resultEl.style.display = "none";
-        arrAnswer = getArrayCharacter(questions[q - 1].answer);
+        arrAnswer = getArrayCharacter(nowPack[q - 1].answer);
         time = 30;
     } else {
         alert("Bạn đã hoàn thành tất cả câu hỏi");
     }
 }
 
+// Khởi tạo trạng thái khi bắt đầu game
+const initPlayingState = function () {
+    playing = true;
+    startZone.style.display = "none";
+    playingZone.style.display = "block";
+    allPacks = createPacksQuestion();
+    nowPack = allPacks[0];
+    displayQuestion(nowPack[0]);
+    arrAnswer = getArrayCharacter(nowPack[q - 1].answer);   // Tạo ra gợi ý
+    countdown();
+}
+
+// Hàm mở modal
 const openModal = function () {
     modal.show();
 }
 
+// Hàm đóng modal
 const closeModal = function () {
     modal.hide();
+}
+
+// Hàm lưu các team vào Local Storage sau khi khởi tạo
+const initTeamsToLocalStorage = function (teamsName) {
+    const teams = teamsName.map(name => ({
+        name: name,
+        score: 0
+    }));
+    localStorage.setItem("teams", JSON.stringify(teams));
+}
+
+// Xếp hạng dựa trên điểm số
+const ranking = function () {
+    if (!localStorage.getItem("teams")) {
+        alert("Không tồn tại mảng dữ liệu xếp hạng. Kiểm tra lại code!");
+    }
+    const teams = JSON.parse(localStorage.getItem("teams"));
+    // Sort lại mảng teams để sắp xếp từ cao đến thấp
+    teams.sort((a, b) => b.score - a.score);
+    console.log(teams);
 }
 
 // Khi bấm vào nút Tiếp theo
@@ -239,7 +314,6 @@ answerEl.addEventListener("click", function (e) {
     }
 })
 
-arrAnswer = getArrayCharacter(questions[q - 1].answer);
 // Xử lý phần gợi ý câu hỏi. 8.5
 btnSuggest.addEventListener("click", function () {
     const cellAnswer = document.querySelectorAll(".cell_answer");
@@ -332,10 +406,6 @@ btnAgree.addEventListener("click", function () {
 
 btnPlaying.addEventListener("click", function () {
     if (!playing) {
-        playing = true;
-        startZone.style.display = "none";
-        playingZone.style.display = "block";
-        displayQuestion(questions[0]);
-        countdown();
+        initPlayingState()
     }
 })

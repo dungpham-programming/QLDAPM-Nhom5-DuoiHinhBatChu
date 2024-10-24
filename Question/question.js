@@ -10,7 +10,7 @@ const questions = [
   { url_image: "images/anh8.png", answer: "KHẨU CUNG" },
   { url_image: "images/anh9.png", answer: "GIẤY BẠC" },
   { url_image: "images/anh10.png", answer: "HOA HẬU" },
-  { url_image: "images/anh11.png", answer: "HÀNG LANG" },
+  { url_image: "images/anh11.png", answer: "HÀNH LANG" },
   { url_image: "images/anh12.png", answer: "THẢM THIẾT" },
   { url_image: "images/anh13.png", answer: "Ô BA MA" },
   { url_image: "images/anh14.png", answer: "BÓNG BẢY" },
