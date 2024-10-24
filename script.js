@@ -17,6 +17,7 @@ const btnPlaying = document.querySelector(".btn-play")
 const modal = bootstrap.Modal.getOrCreateInstance('#notification');
 const startZone = document.querySelector(".start");
 const playingZone = document.querySelector(".playing");
+const rankingEl = document.querySelector(".ranking-list");
 const questionsPerTeam = 10;
 
 let q = 1;
@@ -30,7 +31,8 @@ let intervalID;
 let playing = false;
 // Tạm thời để mặc định là 4 để phân chia các pack câu hỏi
 let totalTeam = 4;
-let nowTeam = 1;
+let nowTeamIndex = 0;
+let nowTeamName
 let allPacks = [];
 let nowPack;
 
@@ -262,15 +264,44 @@ const initTeamsToLocalStorage = function (teamsName) {
     localStorage.setItem("teams", JSON.stringify(teams));
 }
 
-// Xếp hạng dựa trên điểm số
-const ranking = function () {
+const updateRaningLocalStorage = function () {
     if (!localStorage.getItem("teams")) {
         alert("Không tồn tại mảng dữ liệu xếp hạng. Kiểm tra lại code!");
     }
     const teams = JSON.parse(localStorage.getItem("teams"));
-    // Sort lại mảng teams để sắp xếp từ cao đến thấp
+    const team = teams.find(t => t.name === nowTeamName);
+    team.score = score;     // Lưu trữ & truyền bằng tham chiếu => score sẽ thay đổi cả trong object team của mảng teams
     teams.sort((a, b) => b.score - a.score);
-    console.log(teams);
+    localStorage.setItem("teams", JSON.stringify(teams));
+}
+
+const displayRankingUi = function () {
+    const teams = JSON.parse(localStorage.getItem("teams"));
+    const records = document.querySelectorAll(".grid-record");
+    records.forEach(record => {
+        record.innerHTML = ''; // Xóa toàn bộ HTML bên trong thẻ
+    });
+
+    for (let i = 0; i < teams.length; i++) {
+        const record = document.querySelector(`.grid-record[data-rank="${i + 1}"]`);
+        if (record) {
+            if (record.style.display === 'none') {
+                record.style.display = 'grid';
+            }
+            record.innerHTML = `
+                <i class="fa-solid fa-medal ps-1" style="color: ${teams[i].score >= 0 ? "#FFD43B" : "red"}; font-size: 24px"></i>
+                <div class="icon">
+                    ${teams[i].name}
+                </div>
+                <div class="score">
+                    ${teams[i].score}
+                </div>
+            `;
+        }
+    }
+}
+
+const updateRankingUi = function () {
 }
 
 // Khi bấm vào nút Tiếp theo
@@ -384,6 +415,14 @@ btnSuggest.addEventListener("click", function () {
 btnTestModal.addEventListener("click", function () {
     document.querySelector(".btn-agree").setAttribute('data-request', 'test-modal');
     openModal();
+});
+
+document.querySelector(".test-ranking").addEventListener("click",function () {
+    const records = document.querySelectorAll(".grid-record");
+    records.forEach((record) => {
+        const name = record.querySelector('.name');
+        if (record && name.innerHTML !== "" && record.style.display === "none") record.style.display = "grid";
+    });
 });
 
 // Hàm handle khi click nút Đồng ý (Đây là hàm chung, chia switch case để handle các trường hợp khi ấn nút đồng ý)

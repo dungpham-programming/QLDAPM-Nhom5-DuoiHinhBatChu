@@ -27,7 +27,7 @@ body {
     background-image: url("/images/background.jpg") !important;
 }
 
-.start::before, .playing::before {
+.playing::before {
     content: "";
     position: absolute;
     background-repeat: no-repeat;
@@ -37,19 +37,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    opacity: 0.2;
+    opacity: 0.1;
     z-index: -1;
-}
-
-body::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, .8); /* Lớp màu trắng mờ */
-    z-index: -1; /* Đảm bảo lớp phủ ở phía sau nội dung */
 }
 
 header {
@@ -186,3 +175,28 @@ header {
     color: yellowgreen;
     border: 1px solid yellowgreen;
 }
+
+.display, .ranking-box {
+    border: 1px solid black;
+    border-radius: 10px;
+    background: white;
+}
+
+.ranking-title {
+    font-family: 'Arial', sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ea2525;
+    text-shadow: 4px 4px 6px rgba(0, 0, 0, 0.3); /* Hiệu ứng đổ bóng nhẹ */
+}
+
+.ranking-list {
+    font-size: 14px;
+}
+
+.grid-record {
+    display: grid;
+    grid-template-columns: .75fr 1fr 3fr .75fr; /* Chia làm 3 cột đều nhau */
+    align-items: center;
+}
+
