@@ -1,4 +1,125 @@
 "use strict";
+
+// Setup trò chơi.
+const btnPlaying = document.querySelector(".btn-play");
+const startZone = document.querySelector(".start");
+const playingZone = document.querySelector(".playing");
+const settingZone = document.querySelector("#settingsScreen");
+
+//Xử lý nút "Chơi ngay"
+
+btnPlaying.addEventListener("click", function () {
+    const numTeam = document.getElementById("numTeam").value; // Số lượng đội chơi.
+    createTeams(numTeam);
+
+    //   if (!playing) {
+    // playing = true;
+    startZone.style.display = "none";
+    settingZone.style.display = "flex";
+    displayTeams(numTeam);
+
+    // displayQuestion(questions[0]);
+    // countdown();
+    //   }
+});
+
+function createTeams(numTeam) {
+    const teams = [];
+
+    // Mảng lưu thông tin ban đầu
+    for (let i = 1; i <= numTeam; i++) {
+        teams.push({name: `Team ${i}`, score: 0, time: 0});
+    }
+
+    // Lưu mảng vào sessionStorage
+    sessionStorage.setItem("teams", JSON.stringify(teams));
+}
+
+// Tuỳ chỉnh tên của đội chơi tại settingScreens.
+function updatePlayerNames() {
+    const teams = JSON.parse(sessionStorage.getItem("teams"));
+
+    const inputName = document.querySelectorAll(".inputName");
+    inputName.forEach((input, index) => {
+        if (input.value.trim() !== "") {
+            teams[index].name = input.value;
+        }
+    });
+    sessionStorage.setItem("teams", JSON.stringify(teams));
+}
+
+// Hiển thị số lượng đội chơi
+function displayTeams(numTeam) {
+    const teamInputsContainer = document.getElementById("teamInfo");
+    teamInputsContainer.innerHTML = ""; //Xoá màn hình đã có trước đó.
+    for (let i = 1; i <= numTeam; i++) {
+        const teamDiv = document.createElement("div");
+        teamDiv.className = "teamInputDiv";
+        teamDiv.innerHTML = `
+               <img src="./images/avatar${i}.jpg" alt="Team ${i} class="teamAvatar" />
+             <input type="text" class="inputName" value="Team ${i}"/>
+            
+            `;
+        teamInputsContainer.appendChild(teamDiv);
+    }
+}
+
+// Xử lý màn hình trò chơi.
+function goToSettings() {
+    // Lấy số đội tham gia
+    const numTeam = document.getElementById("numTeam").value; // Số lượng đội chơi.
+    createTeams(numTeam);
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("settingsScreen").style.display = "flex";
+
+    displayTeams(numTeam);
+}
+
+// Quay lại từ đầu.
+function goBackToStart() {
+    sessionStorage.clear();
+    settingZone.style.display = "none";
+    startZone.style.display = "block";
+    //   Xoá session storage.
+}
+
+let currentTeamIndex = 0;
+let teams = JSON.parse(sessionStorage.getItem("teams"));
+
+// HIển thị thông tin đội chơi.
+function displayCurrentTeam() {
+    const teamName = document.getElementById("teamName"); //Tạo thẻ div cho tên đội
+    teamName.textContent = teams[currentTeamIndex].name;
+    scoreEl.textContent = score;
+}
+
+// Lưu điểm số sau khi kết màn
+function saveScoreAndTime(score, time) {
+    teams[currentTeamIndex].score = score;
+    teams[currentTeamIndex].time = time;
+
+    sessionStorage.setItem("teams", JSON.stringify(teams));
+}
+
+// Xử lý nút "Sẵn sàng."
+document.getElementById("fight").addEventListener("click", () => {
+    updatePlayerNames();
+    startGame();
+});
+
+function startGame() {
+    // Lấy lại thông tin từ Session Storage mới nhất.
+    teams = JSON.parse(sessionStorage.getItem("teams"));
+    displayCurrentTeam();
+    settingZone.style.display = "none";
+    playingZone.style.display = "block";
+
+    displayQuestion(questions[0]);
+    countdown();
+    timeTeam = 0;
+    startTimer();
+}
+
 // Select element
 const scoreEl = document.querySelector(".score");
 const timeEl = document.querySelector(".time");
@@ -19,7 +140,15 @@ const startZone = document.querySelector(".start");
 const playingZone = document.querySelector(".playing");
 const rankingEl = document.querySelector(".ranking-list");
 const questionsPerTeam = 10;
+const reportScorer = document.querySelector("#reportScorer");
+const reportTimer = document.querySelector("#reportTimer");
+const reportNextTeam = document.querySelector("#reportNextTeam");
+const modal = bootstrap.Modal.getOrCreateInstance("#notification");
+const NUM_QUES = 1; //Tạo 10 câu
 
+let reportIntro = document.getElementById("reportIntro");
+let closeI = document.getElementById("close2");
+let endQ = NUM_QUES;
 let q = 1;
 let score = 0;
 let sg = 3;
@@ -35,6 +164,21 @@ let nowTeamIndex = 0;
 let nowTeamName
 let allPacks = [];
 let nowPack;
+
+let timeTeam = 0;
+let intervalTeam;
+
+function startTimer() {
+    intervalTeam = setInterval(() => {
+        timeTeam++; // Tăng thời gian mỗi giây
+    }, 1000);
+}
+
+// Hàm để dừng bộ đếm thời gian
+function stopTimer() {
+    clearInterval(intervalTeam); // Dừng bộ đếm
+    return timeTeam; // Trả về giá trị của timer
+}
 
 // Tạo ngẫu nhiên chuỗi chữ cái bao gồm đáp án.
 // Tạo ngẫu nhiên chuỗi ký tự
@@ -112,11 +256,11 @@ const createPacksQuestion = function () {
     }
 
     // Tạo mảng để chứa index của câu hổi
-    const indexQuestionArray = Array.from({ length: questions.length }, (_, i) => i);
+    const indexQuestionArray = Array.from({length: questions.length}, (_, i) => i);
     const shuffleIndexes = shuffleIndexQuestionArray(indexQuestionArray);
 
     // Tạo mảng để chứa các pack câu hỏi dựa trên số lượng team
-    const packs = Array.from({ length: totalTeam }, () => []);
+    const packs = Array.from({length: totalTeam}, () => []);
 
     // Thêm câu hỏi vào các pack
     for (let i = 0; i < shuffleIndexes.length; i++) {
@@ -215,7 +359,7 @@ const countdown = function () {
 // Function next question
 const nextQuestion = function () {
     clearInterval(intervalID);
-    if (q < 10) {
+    if (q < endQ) {
         imageEl.src = "";
         answerEl.innerHTML = "";
         selectWordEl.innerHTML = "";
@@ -229,9 +373,49 @@ const nextQuestion = function () {
         arrAnswer = getArrayCharacter(nowPack[q - 1].answer);
         time = 30;
     } else {
-        alert("Bạn đã hoàn thành tất cả câu hỏi");
+        const elapsedTime = stopTimer();
+        saveScoreAndTime(score, elapsedTime); //Lưu điểm cho team1.
+        reportEnding();
+        overlay.style.display = "block";
+        reportIntro.style.display = "block";
     }
+};
+
+// Xử lý khi teams chơi xong.
+closeI.onclick = function () {
+    reportIntro.style.display = "none";
+    overlay.style.display = "none";
+};
+
+function resetScoreAndQ() {
+    score = 0;
+    endQ = endQ + NUM_QUES;
+    timeTeam = 0;
 }
+
+function reportEnding() {
+  const teams = JSON.parse(sessionStorage.getItem("teams"));
+  reportScorer.textContent = `${teams[currentTeamIndex].score} điểm`;
+  reportTimer.textContent = `${teams[currentTeamIndex].time} giây`;
+  reportNextTeam.textContent = teams[currentTeamIndex + 1].name;
+}
+
+document.getElementById("continue").addEventListener("click", () => {
+  resetScoreAndQ();
+  teams = JSON.parse(sessionStorage.getItem("teams"));
+  if (currentTeamIndex < teams.length) {
+    currentTeamIndex++;
+    reportIntro.style.display = "none";
+    overlay.style.display = "none";
+    displayCurrentTeam();
+    // displayQuestion(questions[0]);
+    nextQuestion();
+    countdown();
+    startTimer();
+  } else {
+    alert("Kết thúc rồi");
+  }
+});
 
 // Khởi tạo trạng thái khi bắt đầu game
 const initPlayingState = function () {
@@ -345,6 +529,7 @@ answerEl.addEventListener("click", function (e) {
     }
 })
 
+arrAnswer = getArrayCharacter(questions[q - 1].answer);
 // Xử lý phần gợi ý câu hỏi. 8.5
 btnSuggest.addEventListener("click", function () {
     const cellAnswer = document.querySelectorAll(".cell_answer");
