@@ -131,16 +131,11 @@ const answerResultEl = document.querySelector(".answer_result");
 const suggestEL = document.querySelector(".suggest");
 const btnTestModal = document.querySelector(".test-modal");
 const btnAgree = document.querySelector(".btn-agree");
-const btnPlaying = document.querySelector(".btn-play")
-const modal = bootstrap.Modal.getOrCreateInstance('#notification');
-const startZone = document.querySelector(".start");
-const playingZone = document.querySelector(".playing");
 const rankingEl = document.querySelector(".ranking-list");
 const questionsPerTeam = 10;
 const reportScorer = document.querySelector("#reportScorer");
 const reportTimer = document.querySelector("#reportTimer");
 const reportNextTeam = document.querySelector("#reportNextTeam");
-const modal = bootstrap.Modal.getOrCreateInstance("#notification");
 
 let reportIntro = document.getElementById("reportIntro");
 let closeI = document.getElementById("close2");
