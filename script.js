@@ -136,6 +136,8 @@ const questionsPerTeam = 10;
 const reportScorer = document.querySelector("#reportScorer");
 const reportTimer = document.querySelector("#reportTimer");
 const reportNextTeam = document.querySelector("#reportNextTeam");
+const modal = bootstrap.Modal.getOrCreateInstance("#notification");
+const NUM_QUES = 10; //Tạo 10 câu
 
 let reportIntro = document.getElementById("reportIntro");
 let closeI = document.getElementById("close2");
