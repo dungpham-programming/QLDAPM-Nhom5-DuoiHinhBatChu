@@ -131,11 +131,16 @@ const answerResultEl = document.querySelector(".answer_result");
 const suggestEL = document.querySelector(".suggest");
 const btnTestModal = document.querySelector(".test-modal");
 const btnAgree = document.querySelector(".btn-agree");
+const btnPlaying = document.querySelector(".btn-play")
+const modal = bootstrap.Modal.getOrCreateInstance('#notification');
+const startZone = document.querySelector(".start");
+const playingZone = document.querySelector(".playing");
+const rankingEl = document.querySelector(".ranking-list");
+const questionsPerTeam = 10;
 const reportScorer = document.querySelector("#reportScorer");
 const reportTimer = document.querySelector("#reportTimer");
 const reportNextTeam = document.querySelector("#reportNextTeam");
 const modal = bootstrap.Modal.getOrCreateInstance("#notification");
-const NUM_QUES = 1; //Tạo 10 câu
 
 let reportIntro = document.getElementById("reportIntro");
 let closeI = document.getElementById("close2");
@@ -149,6 +154,12 @@ let arrAnswer;
 let time = 30;
 let intervalID;
 let playing = false;
+// Tạm thời để mặc định là 4 để phân chia các pack câu hỏi
+let totalTeam = 4;
+let nowTeamIndex = 0;
+let nowTeamName
+let allPacks = [];
+let nowPack;
 
 let timeTeam = 0;
 let intervalTeam;
@@ -224,6 +235,40 @@ const displayListCells = function (answer) {
   displayCellsSelect(arrCharacter);
 };
 
+// Hàm random index của câu hỏi, trả về 1 mảng gồm các index đã được xáo trộn của câu hỏi trong question.js
+const shuffleIndexQuestionArray = function (array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// Hàm tạo ra các bộ (pack) câu hỏi cho các team
+const createPacksQuestion = function () {
+    if (questions.length < totalTeam * questionsPerTeam) {
+        throw new Error("Tối đa chỉ có thể có 4 đội.");
+    }
+
+    // Tạo mảng để chứa index của câu hổi
+    const indexQuestionArray = Array.from({ length: questions.length }, (_, i) => i);
+    const shuffleIndexes = shuffleIndexQuestionArray(indexQuestionArray);
+
+    // Tạo mảng để chứa các pack câu hỏi dựa trên số lượng team
+    const packs = Array.from({ length: totalTeam }, () => []);
+
+    // Thêm câu hỏi vào các pack
+    for (let i = 0; i < shuffleIndexes.length; i++) {
+        const teamIndex = Math.floor(i / questionsPerTeam);
+        // Do teamIndex bắt đầu từ 0 => teamIndex nhỏ hơn totalItem
+        if (teamIndex < totalTeam) {
+            packs[teamIndex].push(questions[shuffleIndexes[i]]);
+        } else break;
+    }
+
+    return packs;
+}
+
 // Hiển thị câu đố hoàn chỉnh. <8.2>
 const displayQuestion = function (question) {
   imageEl.src = question.url_image; //Hiển thị hình ảnh câu đố. <8.2.1>
@@ -261,74 +306,76 @@ const checkAnswer = function (cellAnswer) {
     answer += cell.innerText;
   });
 
-  // Convert original answer in system => Answer not contains space character
-  const strCharacter = convertAnswerInSystem(questions[q - 1].answer);
+    // Convert original answer in system => Answer not contains space character
+    const strCharacter = convertAnswerInSystem(nowPack[q - 1].answer);
 
-  if (answer === strCharacter) {
-    console.log("Correct !");
-    // Initial score is 10. Handle score when time over 15s in countdown()
-    updateScore(10);
-    statusResultEl.classList.add("correct");
-    statusResultEl.textContent = "Chính Xác!";
-  } else {
-    console.log("Wrong!");
-    console.log(answer);
-    statusResultEl.classList.remove("correct");
-    statusResultEl.classList.add("incorrect");
-    statusResultEl.textContent = "Không Chính Xác!";
-  }
-  // Display answer
-  answerResultEl.textContent = `Đáp án là: ${questions[q - 1].answer}`;
-  clearInterval(intervalID);
+    if (answer === strCharacter) {
+        console.log("Correct !");
+        // Initial score is 10. Handle score when time over 15s in countdown()
+        updateScore(10);
+        statusResultEl.classList.remove("incorrect");
+        statusResultEl.classList.add("correct");
+        statusResultEl.textContent = "Chính Xác!";
+    } else {
+        console.log("Wrong!");
+        console.log(answer);
+        statusResultEl.classList.remove("correct");
+        statusResultEl.classList.add("incorrect");
+        statusResultEl.textContent = "Không Chính Xác!";
+    }
+    // Display answer
+    answerResultEl.textContent = `Đáp án là: ${nowPack[q - 1].answer}`;
+    clearInterval(intervalID);
 };
 
 // Ham dem nguoc thoi gian
 const countdown = function () {
-  const getTime = function () {
-    if (time < 0 && q < questions.length) {
-      nextQuestion();
-      timeEl.textContent = "30 s";
-      sg = 3;
-    } else if (time == 0 && q === questions.length) {
-      timeEl.textContent = "0 s";
-    } else {
-      timeEl.textContent = time + " s";
-      time--;
-    }
-    if (time < 6) {
-      timeEl.style.color = "red";
-    }
-    if (time > 5) {
-      timeEl.style.color = "black";
-    }
-  };
-  intervalID = setInterval(getTime, 1000);
+    const getTime = function () {
+        if (time < 0 && q < nowPack.length) {
+            nextQuestion();
+            timeEl.textContent = "30 s";
+            sg = 3;
+        } else if (time == 0 && q === nowPack.length) {
+            timeEl.textContent = "0 s";
+        } else {
+            timeEl.textContent = time + " s";
+            time--;
+        }
+        if (time < 6) {
+            timeEl.style.color = "red";
+        }
+        if (time > 5) {
+            timeEl.style.color = "black";
+        }
+    };
+    intervalID = setInterval(getTime, 1000);
 };
 
 // Function next question
 const nextQuestion = function () {
-  clearInterval(intervalID);
-  if (q < endQ) {
-    imageEl.src = "";
-    answerEl.innerHTML = "";
-    selectWordEl.innerHTML = "";
+    clearInterval(intervalID);
+    if (q < endQ) {
+        imageEl.src = "";
+        answerEl.innerHTML = "";
+        selectWordEl.innerHTML = "";
 
-    displayQuestion(questions[q]);
-    q++;
-    sg = 3;
-    suggestEL.textContent = sg;
-    selectWordEl.style.display = "flex";
-    resultEl.style.display = "none";
-    arrAnswer = getArrayCharacter(questions[q - 1].answer);
-    time = 30;
-  } else {
-    const elapsedTime = stopTimer();
-    saveScoreAndTime(score, elapsedTime); //Lưu điểm cho team1.
-    reportEnding();
-    overlay.style.display = "block";
-    reportIntro.style.display = "block";
-  }
-};
+        displayQuestion(nowPack[q]);
+        q++;
+        sg = 3;
+        suggestEL.textContent = sg;
+        selectWordEl.style.display = "flex";
+        resultEl.style.display = "none";
+        arrAnswer = getArrayCharacter(nowPack[q - 1].answer);
+        time = 30;
+    } else {
+       const elapsedTime = stopTimer();
+       saveScoreAndTime(score, elapsedTime); //Lưu điểm cho team1.
+       reportEnding();
+       overlay.style.display = "block";
+       reportIntro.style.display = "block";
+    }
+}
+
 // Xử lý khi teams chơi xong.
 closeI.onclick = function () {
   reportIntro.style.display = "none";
@@ -365,13 +412,76 @@ document.getElementById("continue").addEventListener("click", () => {
   }
 });
 
-const openModal = function () {
-  modal.show();
-};
+// Khởi tạo trạng thái khi bắt đầu game
+const initPlayingState = function () {
+    playing = true;
+    startZone.style.display = "none";
+    playingZone.style.display = "block";
+    allPacks = createPacksQuestion();
+    nowPack = allPacks[0];
+    displayQuestion(nowPack[0]);
+    arrAnswer = getArrayCharacter(nowPack[q - 1].answer);   // Tạo ra gợi ý
+    countdown();
+}
 
+// Hàm mở modal
+const openModal = function () {
+    modal.show();
+}
+
+// Hàm đóng modal
 const closeModal = function () {
   modal.hide();
 };
+
+// Hàm lưu các team vào Local Storage sau khi khởi tạo
+const initTeamsToSessionStorage = function (teamsName) {
+    const teams = teamsName.map(name => ({
+        name: name,
+        score: 0
+    }));
+    sessionStorage.setItem("teams", JSON.stringify(teams));
+}
+
+const updateRaningSessionStorage = function () {
+    if (!sessionStorage.getItem("teams")) {
+        alert("Không tồn tại mảng dữ liệu xếp hạng. Kiểm tra lại code!");
+    }
+    const teams = JSON.parse(sessionStorage.getItem("teams"));
+    const team = teams.find(t => t.name === nowTeamName);
+    team.score = score;     // Lưu trữ & truyền bằng tham chiếu => score sẽ thay đổi cả trong object team của mảng teams
+    teams.sort((a, b) => b.score - a.score);
+    sessionStorage.setItem("teams", JSON.stringify(teams));
+}
+
+const displayRankingUi = function () {
+    const teams = JSON.parse(sessionStorage.getItem("teams"));
+    const records = document.querySelectorAll(".grid-record");
+    records.forEach(record => {
+        record.innerHTML = ''; // Xóa toàn bộ HTML bên trong thẻ
+    });
+
+    for (let i = 0; i < teams.length; i++) {
+        const record = document.querySelector(`.grid-record[data-rank="${i + 1}"]`);
+        if (record) {
+            if (record.style.display === 'none') {
+                record.style.display = 'grid';
+            }
+            record.innerHTML = `
+                <i class="fa-solid fa-medal ps-1" style="color: ${teams[i].score >= 0 ? "#FFD43B" : "red"}; font-size: 24px"></i>
+                <div class="icon">
+                    ${teams[i].name}
+                </div>
+                <div class="score">
+                    ${teams[i].score}
+                </div>
+            `;
+        }
+    }
+}
+
+const updateRankingUi = function () {
+}
 
 // Khi bấm vào nút Tiếp theo
 btnNext.addEventListener("click", function () {
@@ -414,7 +524,6 @@ answerEl.addEventListener("click", function (e) {
   }
 });
 
-arrAnswer = getArrayCharacter(questions[q - 1].answer);
 // Xử lý phần gợi ý câu hỏi. 8.5
 btnSuggest.addEventListener("click", function () {
   const cellAnswer = document.querySelectorAll(".cell_answer");
@@ -489,13 +598,20 @@ btnTestModal.addEventListener("click", function () {
   openModal();
 });
 
+document.querySelector(".test-ranking").addEventListener("click",function () {
+    const records = document.querySelectorAll(".grid-record");
+    records.forEach((record) => {
+        const name = record.querySelector('.name');
+        if (record && name.innerHTML !== "" && record.style.display === "none") record.style.display = "grid";
+    });
+});
+
 // Hàm handle khi click nút Đồng ý (Đây là hàm chung, chia switch case để handle các trường hợp khi ấn nút đồng ý)
 btnAgree.addEventListener("click", function () {
   const requestValue = document
     .querySelector(".btn-agree")
     .getAttribute("data-request");
-
-  switch (requestValue) {
+    switch (requestValue) {
     case "test-modal":
       // Xử lý sự kiện ở đây. Mẫu ở đây là hiện lên Alert
       alert(`Bạn dã bấm vào nút Đông ý từ chức năng ${requestValue}`);
@@ -507,4 +623,11 @@ btnAgree.addEventListener("click", function () {
       break;
   }
   closeModal();
+});
+
+
+btnPlaying.addEventListener("click", function () {
+    if (!playing) {
+        initPlayingState()
+    }
 });
