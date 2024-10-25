@@ -256,27 +256,27 @@ const closeModal = function () {
 }
 
 // Hàm lưu các team vào Local Storage sau khi khởi tạo
-const initTeamsToLocalStorage = function (teamsName) {
+const initTeamsToSessionStorage = function (teamsName) {
     const teams = teamsName.map(name => ({
         name: name,
         score: 0
     }));
-    localStorage.setItem("teams", JSON.stringify(teams));
+    sessionStorage.setItem("teams", JSON.stringify(teams));
 }
 
-const updateRaningLocalStorage = function () {
-    if (!localStorage.getItem("teams")) {
+const updateRaningSessionStorage = function () {
+    if (!sessionStorage.getItem("teams")) {
         alert("Không tồn tại mảng dữ liệu xếp hạng. Kiểm tra lại code!");
     }
-    const teams = JSON.parse(localStorage.getItem("teams"));
+    const teams = JSON.parse(sessionStorage.getItem("teams"));
     const team = teams.find(t => t.name === nowTeamName);
     team.score = score;     // Lưu trữ & truyền bằng tham chiếu => score sẽ thay đổi cả trong object team của mảng teams
     teams.sort((a, b) => b.score - a.score);
-    localStorage.setItem("teams", JSON.stringify(teams));
+    sessionStorage.setItem("teams", JSON.stringify(teams));
 }
 
 const displayRankingUi = function () {
-    const teams = JSON.parse(localStorage.getItem("teams"));
+    const teams = JSON.parse(sessionStorage.getItem("teams"));
     const records = document.querySelectorAll(".grid-record");
     records.forEach(record => {
         record.innerHTML = ''; // Xóa toàn bộ HTML bên trong thẻ
