@@ -1,11 +1,11 @@
 * {
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
 body {
-  font-family: sans-serif;
+  font-family: "Space Mono", serif;
   font-size: 16px;
 }
 
@@ -78,7 +78,7 @@ body {
 
 #teamInfo .teamInputDiv .inputName {
   background-color: #ffffff;
-  border: 1ex solid none;
+  border: 1px solid none;
 
   margin: 0;
   padding: 0;
@@ -298,7 +298,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 100px;
+  gap: 60px;
 }
 
 #image_question {
@@ -435,7 +435,6 @@ header {
 }
 
 .ranking-title {
-    font-family: 'Arial', sans-serif;
     font-size: 24px;
     font-weight: bold;
     color: #ea2525;
