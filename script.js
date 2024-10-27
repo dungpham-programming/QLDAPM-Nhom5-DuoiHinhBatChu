@@ -677,3 +677,80 @@ document.querySelector(".btn-confirm").addEventListener("click", function () {
     clearInterval(intervalID);
     sessionStorage.clear();
 });
+
+// Reset all game state variables
+const restartGame = function() {
+    // Reset session storage
+    sessionStorage.clear();
+
+    // Reset game state variables
+    currentTeamIndex = 0;
+    score = 0;
+    q = 1;
+    time = 30;
+    sg = 3;
+    timeTeam = 0;
+    playing = false;
+    allPacks = [];
+    nowPack = null;
+    arrCharacterAnswer = [];
+
+    // Clear intervals
+    clearInterval(intervalID);
+    clearInterval(intervalTeam);
+
+    // Reset UI elements
+    clearPlayingField();
+    scoreEl.textContent = "0";
+    timeEl.textContent = "30 s";
+    timeEl.style.color = "black";
+    suggestEL.textContent = "3";
+
+    // Hide all game zones except start
+    playingZone.style.display = "none";
+    settingZone.style.display = "none";
+    startZone.style.display = "block";
+
+    // Reset ranking display
+    const rankingRecords = document.querySelectorAll(".ranking .grid-record");
+    rankingRecords.forEach(record => {
+        record.style.display = "none";
+        record.innerHTML = '';
+    });
+
+    // Close any open modals
+    const totalRankingModal = bootstrap.Modal.getOrCreateInstance("#totalRanking");
+    totalRankingModal.hide();
+
+    // Play sound effect
+    buttonPushSound.play();
+}
+
+// restart game
+document.querySelector(".btn-restart").addEventListener("click", () => {
+    // Show confirmation modal before restarting
+    const notificationTitle = document.querySelector("#notificationTitle");
+    const notificationBody = document.querySelector("#modal-body");
+    const btnAgree = document.querySelector(".btn-agree");
+
+    notificationTitle.textContent = "Xác nhận khởi động lại";
+    notificationBody.textContent = "Bạn có chắc chắn muốn khởi động lại trò chơi? Toàn bộ tiến trình sẽ bị mất.";
+    btnAgree.setAttribute("data-request", "restart-game");
+
+    openModal();
+});
+
+
+const existingClickHandler = document.querySelector(".btn-agree").onclick;
+document.querySelector(".btn-agree").onclick = function() {
+    const requestValue = this.getAttribute("data-request");
+    if (requestValue === "restart-game") {
+        restartGame();
+        closeModal();
+    } else if (existingClickHandler) {
+        existingClickHandler.call(this);
+    }
+};
+
+
+
