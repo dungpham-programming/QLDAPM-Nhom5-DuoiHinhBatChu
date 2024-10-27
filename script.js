@@ -46,7 +46,7 @@ errorSound.volume = 0.5;
 let reportIntro = document.getElementById("reportIntro");
 let closeI = document.getElementById("close2");
 let endQ = NUM_QUES;
-let q = 1;
+let q;
 let score = 0;
 let sg = 3;
 let arrCharacterAnswer = [];
@@ -158,6 +158,7 @@ const setStartStateByTeamIndex = function (index) {
 const startGame = function () {
     // Lấy lại thông tin từ Session Storage mới nhất.
     teams = JSON.parse(sessionStorage.getItem("teams"));
+    q = 1;      // Đặt q trước khi displayCurrentTeam
     displayCurrentTeam();
     settingZone.style.display = "none";
     playingZone.style.display = "block";
@@ -443,7 +444,7 @@ closeI.onclick = function () {
 
 function resetScoreAndQ() {
     score = 0;
-    q = 1;
+    q = 0;      // Do khi gọi nextQuestion, q sẽ tăng thêm 1 ngay lần gọi => q = 0
     timeTeam = 0;
 }
 
@@ -475,6 +476,7 @@ document.getElementById("continue").addEventListener("click", () => {
         startTimer();
     } else {
         totalRankingSound.play();
+        clearInterval(intervalID);
         showTotalRanking();
     }
 });
@@ -688,33 +690,6 @@ btnSuggest.addEventListener("click", function () {
     }
 });
 
-// Test hiển thị Modal và gán dữ liệu của chức năng đã yêu cầu Modal vào nút Đồng ý (Ở đây là chức năng test-modal)
-btnTestModal.addEventListener("click", function () {
-    document
-        .querySelector(".btn-agree")
-        .setAttribute("data-request", "test-modal");
-    openModal();
-});
-
-// Hàm handle khi click nút Đồng ý (Đây là hàm chung, chia switch case để handle các trường hợp khi ấn nút đồng ý)
-btnAgree.addEventListener("click", function () {
-    const requestValue = document
-        .querySelector(".btn-agree")
-        .getAttribute("data-request");
-    switch (requestValue) {
-        case "test-modal":
-            // Xử lý sự kiện ở đây. Mẫu ở đây là hiện lên Alert
-            alert(`Bạn dã bấm vào nút Đông ý từ chức năng ${requestValue}`);
-            closeModal();
-            break;
-
-        // Các chức năng khác cứ thế tiếp tục handle
-        default:
-            break;
-    }
-    closeModal();
-});
-
 document.querySelector(".btn-confirm").addEventListener("click", function () {
     buttonPushSound.play();
     playingZone.style.display = "none";
@@ -726,6 +701,14 @@ document.querySelector(".btn-confirm").addEventListener("click", function () {
     sessionStorage.clear();
 });
 
+const clearAnswerStatus = function () {
+    statusResultEl.classList.remove("incorrect");
+    statusResultEl.classList.remove("correct");
+    statusResultEl.textContent = "";
+    imageEl.src = "";
+    answerEl.innerHTML = "";
+    selectWordEl.innerHTML = "";
+}
 // Reset all game state variables
 const restartGame = function() {
     // Reset session storage
@@ -749,6 +732,7 @@ const restartGame = function() {
 
     // Reset UI elements
     clearPlayingField();
+    resultEl.style.display = "none";
     scoreEl.textContent = "0";
     timeEl.textContent = "30 s";
     timeEl.style.color = "black";
