@@ -27,12 +27,13 @@ const totalRankingSound = new Audio("/sounds/total_ranking.mp3");
 const buttonPushSound = new Audio("/sounds/button_push.mp3");
 const suggestOkSound = new Audio("/sounds/suggest_ok.mp3");
 const suggestFailSound = new Audio("/sounds/suggest_fail.mp3");
+const correctSound = new Audio("/sounds/correct.mp3");
 teamDoneSound.volume = 0.5;
 totalRankingSound.volume = 0.3;
 buttonPushSound.volume = 0.5;
 suggestOkSound.volume = 0.5;
 suggestFailSound.volume = 0.5;
-
+correctSound.volume = 0.5;
 let reportIntro = document.getElementById("reportIntro");
 let closeI = document.getElementById("close2");
 let endQ = NUM_QUES;
@@ -347,6 +348,7 @@ const checkAnswer = function (cellAnswer) {
         statusResultEl.classList.remove("incorrect");
         statusResultEl.classList.add("correct");
         statusResultEl.textContent = "Chính Xác!";
+        correctSound.play();
     } else {
         console.log("Wrong!");
         console.log(answer);
@@ -677,6 +679,7 @@ document.querySelector(".btn-confirm").addEventListener("click", function () {
     clearInterval(intervalID);
     sessionStorage.clear();
 });
+
 
 // Reset all game state variables
 const restartGame = function() {
