@@ -73,6 +73,7 @@
                     <p class="answer_result"></p>
                 </section>
                 <section id="buttons" class="mb-4">
+                    <button class="btn btn_restart_group">Chơi lại (nhóm hiện tại)</button>
                     <button class="btn btn_suggest">Gợi ý</button>
                     <button class="btn btn_next">Tiếp theo</button>
                 </section>
@@ -144,8 +145,9 @@
                                 <div class="card-body">
                                     <div class="ranking-title-container mb-4">
                                         <h4 class="ranking-title text-center"><i class="fa-solid fa-ranking-star me-2"
-                                                                                 style="color: #FFD43B;"></i>Bảng xếp hạng<i
-                                                class="fa-solid fa-coins ms-2" style="color: #FFD43B;"></i></h4>
+                                                                                 style="color: #FFD43B;"></i>Bảng xếp
+                                            hạng<i
+                                                    class="fa-solid fa-coins ms-2" style="color: #FFD43B;"></i></h4>
                                     </div>
                                     <div class="ranking-list">
                                         <div class="grid-record py-1 mb-1" data-rank="1"
@@ -171,7 +173,8 @@
             </div>
 
             <!-- Modal notification -->
-            <div class="modal fade" id="notification" tabindex="-1" aria-labelledby="notificationTitle" aria-hidden="true">
+            <div class="modal fade" id="notification" tabindex="-1" aria-labelledby="notificationTitle"
+                 aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -189,6 +192,50 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Màn hình cảnh báo khi bấm Tiếp theo -->
+<div class="modal fade" id="warningModal" tabindex="-1" aria-labelledby="warningModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-warning" id="warningModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Cảnh báo
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn chưa hoàn thành câu đố này. Bạn có chắc chắn muốn bỏ qua không?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
+                <button type="button" class="btn btn-warning" id="confirmNext">Tiếp tục</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Màn hình cảnh báo khi bấm restart nhóm hiện tại -->
+<div class="modal fade" id="warningModalRestartGroup" tabindex="-1" aria-labelledby="warningModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-warning" id="">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Cảnh báo
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn muốn chơi lại từ đầu ?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
+                <button type="button" class="btn btn-warning" id="confirmRestart">Chơi lại</button>
             </div>
         </div>
     </div>

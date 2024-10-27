@@ -27,11 +27,19 @@ const totalRankingSound = new Audio("/sounds/total_ranking.mp3");
 const buttonPushSound = new Audio("/sounds/button_push.mp3");
 const suggestOkSound = new Audio("/sounds/suggest_ok.mp3");
 const suggestFailSound = new Audio("/sounds/suggest_fail.mp3");
+const btnRestartTeam = document.querySelector('.btn_restart_group');
+const warningModal = bootstrap.Modal.getOrCreateInstance("#warningModal");
+const btnConfirmNext = document.querySelector("#confirmNext");
+const warningModalRestartGroup = bootstrap.Modal.getOrCreateInstance('#warningModalRestartGroup');
+const btnConfirmRestartGroup = document.querySelector('#confirmRestart')
+const errorSound = new Audio("/sounds/error.mp3");
+const countDownSound = new Audio("/sounds/count_down.mp4");
 teamDoneSound.volume = 0.5;
 totalRankingSound.volume = 0.3;
 buttonPushSound.volume = 0.5;
 suggestOkSound.volume = 0.5;
 suggestFailSound.volume = 0.5;
+errorSound.volume = 0.5;
 
 let reportIntro = document.getElementById("reportIntro");
 let closeI = document.getElementById("close2");
@@ -350,6 +358,7 @@ const checkAnswer = function (cellAnswer) {
     } else {
         console.log("Wrong!");
         console.log(answer);
+        errorSound.play();
         statusResultEl.classList.remove("correct");
         statusResultEl.classList.add("incorrect");
         statusResultEl.textContent = "Không Chính Xác!";
@@ -366,11 +375,24 @@ const countdown = function () {
             timeEl.textContent = "30 s";
             sg = 3;
             intervalID = setInterval(getTime, 1000);
-        } else if (time == 0 && q > nowPack.length) {
+        } else if (time === 0 && q > nowPack.length) {
             timeEl.textContent = "0 s";
         } else {
             timeEl.textContent = time + " s";
             time--;
+        }
+        if (time < 11 && time > 0) {
+            if (countDownSound.paused) {
+                countDownSound.play().catch(error => {
+                    console.error("Lỗi khi phát âm thanh: ", error);
+                });
+            }
+        }
+        if (time < 0) {
+            if (!countDownSound.paused) {
+                countDownSound.pause(); // Dừng âm thanh khi dưới 0 giây
+                countDownSound.currentTime = 0; // Đặt lại vị trí âm thanh về đầu
+            }
         }
         if (time < 6) {
             timeEl.style.color = "red";
@@ -428,7 +450,7 @@ function reportEnding() {
     reportScorer.textContent = `${teams[currentTeamIndex].score} điểm`;
     reportTimer.textContent = `${teams[currentTeamIndex].time} giây`;
     (currentTeamIndex < teams.length - 1) ? reportNextTeam.textContent = teams[currentTeamIndex + 1].name
-        :reportNextTeam.textContent = "None";
+        : reportNextTeam.textContent = "None";
 }
 
 document.getElementById("continue").addEventListener("click", () => {
@@ -533,9 +555,32 @@ const clearPlayingField = function () {
 
 // Khi bấm vào nút Tiếp theo
 btnNext.addEventListener("click", function () {
+    if (!isQuestionCompleted()) {
+        buttonPushSound.play();
+        warningModal.show();
+    } else {
+        nextQuestion();
+        countdown();
+    }
+});
+
+// Xử lý khi người dùng xác nhận muốn bỏ qua
+btnConfirmNext.addEventListener("click", function () {
+    warningModal.hide();
     nextQuestion();
     countdown();
 });
+
+// Kiểm tra xem câu đố đã hoàn thành chưa
+const isQuestionCompleted = () => {
+    const cellAnswers = document.querySelectorAll(".cell_answer");
+    for (let cell of cellAnswers) {
+        if (cell.innerText === "") {
+            return false;
+        }
+    }
+    return true;
+};
 
 // Select a letter from list letter
 selectWordEl.addEventListener("click", function (e) {
@@ -677,3 +722,48 @@ document.querySelector(".btn-confirm").addEventListener("click", function () {
     clearInterval(intervalID);
     sessionStorage.clear();
 });
+
+function restartCurrentTeam() {
+    q = 1;
+    score = 0;
+    sg = 3;
+    time = 30;
+    timeTeam = 0;
+
+    scoreEl.textContent = score;
+    suggestEL.textContent = sg;
+    nowQuestionNumEl.textContent = q;
+
+    clearInterval(intervalID);
+    clearInterval(intervalTeam);
+
+    clearPlayingField();
+
+    selectWordEl.style.display = "flex";
+    resultEl.style.display = "none";
+
+    nowPack = allPacks[currentTeamIndex];
+
+    displayQuestion(nowPack[0]);
+    arrAnswer = getArrayCharacter(nowPack[0].answer);
+
+    countdown();
+    startTimer();
+
+    const teams = JSON.parse(sessionStorage.getItem("teams"));
+    teams[currentTeamIndex].score = 0;
+    teams[currentTeamIndex].time = 0;
+    sessionStorage.setItem("teams", JSON.stringify(teams));
+
+    updateRankingUi();
+}
+
+btnRestartTeam.addEventListener('click', function () {
+    warningModalRestartGroup.show();
+});
+
+btnConfirmRestartGroup.addEventListener('click', function () {
+    buttonPushSound.play();
+    restartCurrentTeam();
+    warningModalRestartGroup.hide();
+})
