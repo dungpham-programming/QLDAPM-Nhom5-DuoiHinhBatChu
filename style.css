@@ -408,6 +408,17 @@ header {
   border: 1px solid yellowgreen;
 }
 
+.btn_restart_group {
+  background-color: #10439f;
+  border: 1px solid #10439f;
+}
+
+.btn_restart_group:hover {
+  background-color: white;
+  color: #10439f;
+  border: 1px solid #10439f;
+}
+
 .start {
   background-image: url("images/background-start.jpg");
   background-repeat: no-repeat;
