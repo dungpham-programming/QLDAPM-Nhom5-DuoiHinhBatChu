@@ -64,6 +64,7 @@ let nowPack;
 
 let timeTeam = 0;
 let intervalTeam;
+let answered = false;
 
 // Setup trò chơi.
 const btnPlaying = document.querySelector(".btn-play");
@@ -157,6 +158,7 @@ const setStartStateByTeamIndex = function (index) {
 
 const startGame = function () {
     // Lấy lại thông tin từ Session Storage mới nhất.
+    answered = false;
     teams = JSON.parse(sessionStorage.getItem("teams"));
     q = 1;      // Đặt q trước khi displayCurrentTeam
     displayCurrentTeam();
@@ -307,6 +309,7 @@ const shuffleIndexQuestionArray = function (array) {
 
 // Hiển thị câu đố hoàn chỉnh. <8.2>
 const displayQuestion = function (question) {
+    console.log(answered);
     imageEl.src = question.url_image; //Hiển thị hình ảnh câu đố. <8.2.1>
     displayListCells(question.answer);
 };
@@ -336,6 +339,8 @@ const updateScore = function () {
 
 // Function check answer from client
 const checkAnswer = function (cellAnswer) {
+    // Đánh dấu là đã trả lời
+    answered = true;
     selectWordEl.style.display = "none";
     resultEl.style.display = "block";
     // Get answer of player
@@ -352,7 +357,6 @@ const checkAnswer = function (cellAnswer) {
     clearInterval(intervalID);
 
     if (answer === strCharacter) {
-        console.log("Correct !");
         // Initial score is 10. Handle score when time over 15s in countdown()
         updateScore();
         statusResultEl.classList.remove("incorrect");
@@ -360,13 +364,12 @@ const checkAnswer = function (cellAnswer) {
         statusResultEl.textContent = "Chính Xác!";
         correctSound.play();
     } else {
-        console.log("Wrong!");
-        console.log(answer);
         errorSound.play();
         statusResultEl.classList.remove("correct");
         statusResultEl.classList.add("incorrect");
         statusResultEl.textContent = "Không Chính Xác!";
     }
+    console.log(answered);
     // Display answer
     answerResultEl.textContent = `Đáp án là: ${nowQuestion.answer}`;
 };
@@ -412,6 +415,7 @@ const countdown = function () {
 const nextQuestion = function () {
     clearInterval(intervalID);
     if (q < endQ) {
+        answered = false;       // Đánh dấu là chưa trả lời khi đến câu hỏi tiếp theo
         buttonPushSound.play();
         q++;
         const nowQuestion = nowPack[q - 1];
@@ -589,7 +593,7 @@ const isQuestionCompleted = () => {
 
 // Select a letter from list letter
 selectWordEl.addEventListener("click", function (e) {
-    console.log(e.target.localName === "li");
+    // console.log(e.target.localName === "li");
     if (e.target.localName === "li") {
         const cellAnswer = document.querySelectorAll(".cell_answer");
         const arrCell = [];
