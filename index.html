@@ -1,34 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="style.css" />
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
     <title>Đuổi hình bắt chữ</title>
-  </head>
-  <body>
-    <header>
-      <div>Điểm: <strong class="score">0</strong></div>
-      <div>Gơi ý còn <strong class="suggest">3</strong> lần</div>
-      <div>Thời gian còn lại: <strong class="time">30 s</strong></div>
-    </header>
-    <section id="image_question">
-      <img src="" alt="image question 1" />
-    </section>
-    <section id="answer"></section>
-    <section id="list_words">
-      <ul class="select_word"></ul>
-    </section>
-    <section id="result">
-      <p class="status_result correct">Chính Xác !</p>
-      <p class="answer_result">Đáp án là: BÁO CÁO</p>
-    </section>
-    <section id="buttons">
-      <button class="btn btn_suggest">Gợi ý</button>
-      <button class="btn btn_next">Tiếp theo</button>
-    </section>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Kablammo&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+          rel="stylesheet"/>
+</head>
+<body>
+<div class="start">
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <img src="images/remove-bg-icon-hd.png" alt="" style="width: 800px"/>
+        <div class="selectTeam">
+            <label for="numTeam">Số đội tham gia: </label>
+            <select name="" id="numTeam">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+        </div>
+        <button type="button" class="btn btn-play">Chơi ngay</button>
+    </div>
+</div>
 
-    <script src="Question/question.js"></script>
-    <script src="script.js"></script>
-  </body>
+<!-- Màn hình setting game. -->
+
+<div id="settingsScreen" class="container" style="display: none">
+    <h2>Cài đặt chung</h2>
+
+    <div id="teamInfo">
+        <!-- Xử lý javascript để hiển thị theo số lượng đội -->
+    </div>
+    <div class="footer">
+        <button class="backButton" onclick="goBackToStart()">
+            &lt Quay lại
+        </button>
+        <button id="fight" class="pushable">
+            <span class="shadow"></span>
+            <span class="edge"></span>
+            <span class="front"> Sẵn sàng! </span>
+        </button>
+    </div>
+</div>
+
+<div class="playing" style="display: none">
+    <div class="container">
+        <h1 class="title text-center pt-3 mb-3">Trò chơi Đuổi hình bắt chữ</h1>
+        <div class="d-flex g-0">
+            <div class="col-9 display">
+                <header class="px-2">
+                    <div><strong id="teamName"></strong></div>
+                    <div>Câu hỏi số <strong id="nowQuestionNum"></strong></div>
+                    <div>Điểm: <strong class="score">0</strong></div>
+                    <div>Gơi ý còn <strong class="suggest">3</strong> lần</div>
+                    <div>Thời gian còn lại: <strong class="time">30 s</strong></div>
+                </header>
+                <section id="image_question">
+                    <img class="image_question" src="" alt="image question 1"/>
+                </section>
+                <section id="answer"></section>
+                <section id="list_words">
+                    <ul class="select_word"></ul>
+                </section>
+                <section id="result">
+                    <p class="status_result correct"></p>
+                    <p class="answer_result"></p>
+                </section>
+                <section id="buttons" class="mb-4">
+                    <button class="btn btn-restart">Chơi lại (Toàn bô game)</button>
+                    <button class="btn btn_restart_group">Chơi lại (Nhóm hiện tại)</button>
+                    <button class="btn btn_suggest">Gợi ý</button>
+                    <button class="btn btn_next">Tiếp theo</button>
+                </section>
+            </div>
+
+            <div class="col-3 ms-4 ranking">
+                <div class="card ranking-box mb-3">
+                    <div class="card-body">
+                        <div class="ranking-title-container mb-4">
+                            <h4 class="ranking-title text-center"><i class="fa-solid fa-ranking-star me-2"
+                                                                     style="color: #FFD43B;"></i>Bảng xếp hạng<i
+                                    class="fa-solid fa-coins ms-2" style="color: #FFD43B;"></i></h4>
+                        </div>
+                        <div class="ranking-list">
+                            <div class="grid-record py-1 mb-1" data-rank="1"
+                                 style="display: none; background: #faf0cb;">
+                            </div>
+                            <div class="grid-record py-1 mb-1" style="display: none;" data-rank="2">
+                            </div>
+                            <div class="grid-record py-1 mb-1" style="display: none;" data-rank="3">
+                            </div>
+                            <div class="grid-record py-1 mb-1" style="display: none;" data-rank="4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thông báo mỗi khi team chơi xong. -->
+            <div id="reportIntro" class="report">
+      <span id="close2" class="close">
+        <i class="far fa-window-close"></i>
+      </span>
+                <h2>Kết quả</h2>
+                <div class="content">
+                    <div class="content-sub">
+                        <i class="fa-solid fa-bullseye"></i>
+                        <p id="reportScorer" class="fas-solid"></p>
+                    </div>
+                    <div class="content-sub">
+                        <i class="fa-solid fa-clock"></i>
+                        <p id="reportTimer" class="fas-solid"></p>
+                    </div>
+                    <div class="content-sub">
+                        <i class="fa-solid fa-forward"></i>
+                        <p id="reportNextTeam" class="fas-solid"></p>
+                    </div>
+                    <button id="continue" class="pushable">
+                        <span class="shadow"></span>
+                        <span class="edge"></span>
+                        <span class="front"> Sẵn sàng! </span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lớp nền đục -->
+            <div id="overlay" class="overlay"></div>
+
+            <!-- Modal Total Ranking -->
+            <div class="modal fade" id="totalRanking" tabindex="-1" aria-labelledby="rankingTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5 text-danger fw-bold" id="rankingTitle">Total Ranking Board</h1>
+                        </div>
+                        <div class="modal-body">
+                            <div class="card ranking-box mb-3">
+                                <div class="card-body">
+                                    <div class="ranking-title-container mb-4">
+                                        <h4 class="ranking-title text-center"><i class="fa-solid fa-ranking-star me-2"
+                                                                                 style="color: #FFD43B;"></i>Bảng xếp
+                                            hạng<i
+                                                    class="fa-solid fa-coins ms-2" style="color: #FFD43B;"></i></h4>
+                                    </div>
+                                    <div class="ranking-list">
+                                        <div class="grid-record py-1 mb-1" data-rank="1"
+                                             style="display: none; background: #faf0cb;">
+                                        </div>
+                                        <div class="grid-record py-1 mb-1" style="display: none;" data-rank="2">
+                                        </div>
+                                        <div class="grid-record py-1 mb-1" style="display: none;" data-rank="3">
+                                        </div>
+                                        <div class="grid-record py-1 mb-1" style="display: none;" data-rank="4">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success btn-confirm">
+                                Chơi lại
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal notification -->
+            <div class="modal fade" id="notification" tabindex="-1" aria-labelledby="notificationTitle"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title fs-5 fw-bold" id="notificationTitle"></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                        <h5 id="modal-body"></h5>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                                Từ chối
+                            </button>
+                            <button type="button" class="btn btn-success btn-agree">
+                                Đồng ý
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Màn hình cảnh báo khi bấm Tiếp theo -->
+<div class="modal fade" id="warningModal" tabindex="-1" aria-labelledby="warningModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-warning" id="warningModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Cảnh báo
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn chưa hoàn thành câu đố này. Bạn có chắc chắn muốn bỏ qua không?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
+                <button type="button" class="btn btn-warning" id="confirmNext">Tiếp tục</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Màn hình cảnh báo khi bấm restart nhóm hiện tại -->
+<div class="modal fade" id="warningModalRestartGroup" tabindex="-1" aria-labelledby="warningModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-warning" id="">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Cảnh báo
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn muốn chơi lại từ đầu ?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
+                <button type="button" class="btn btn-warning" id="confirmRestart">Chơi lại</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/js/all.min.js"></script>
+<script src="Question/question.js"></script>
+<script src="script.js"></script>
+</body>
 </html>
