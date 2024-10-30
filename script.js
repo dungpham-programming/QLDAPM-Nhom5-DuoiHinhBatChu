@@ -389,8 +389,8 @@ const countdown = function () {
     if (time < 0 && q <= nowPack.length) {
       enableBtnSuggest();
       nextQuestion();
+      // suggestEL.textContent = sg;
       timeEl.textContent = "30 s";
-      sg = 3;
       intervalID = setInterval(getTime, 1000);
     } else if (time === 0 && q > nowPack.length) {
       timeEl.textContent = "0 s";
