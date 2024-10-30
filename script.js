@@ -637,7 +637,7 @@ selectWordEl.addEventListener("click", function (e) {
 
 // Undo select from answer cell
 answerEl.addEventListener("click", function (e) {
-  if (e.target.localName === "div") {
+  if (!answered && e.target.localName === "div") {
     const cellSelect = document.querySelectorAll(".word");
     cellSelect.forEach((cell) => {
       if (cell.dataset.cell === e.target.dataset.cell) {
