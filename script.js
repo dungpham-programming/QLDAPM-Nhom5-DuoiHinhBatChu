@@ -413,6 +413,7 @@ const countdown = function () {
 
 // Function next question
 const nextQuestion = function () {
+    countDownSound.pause();
     clearInterval(intervalID);
     if (q < endQ) {
         answered = false;       // Đánh dấu là chưa trả lời khi đến câu hỏi tiếp theo
@@ -626,73 +627,82 @@ answerEl.addEventListener("click", function (e) {
     }
 });
 
+// Hàm để trộn mảng ngẫu nhiên
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1)); // Lấy chỉ số ngẫu nhiên
+        [array[i], array[j]] = [array[j], array[i]]; // Hoán đổi
+    }
+}
+
+
 // Xử lý phần gợi ý câu hỏi. 8.5
 btnSuggest.addEventListener("click", function () {
     const cellAnswer = document.querySelectorAll(".cell_answer");
-    const arrCell = [];
-    if (sg === 0) {
-        suggestFailSound.play();
-        alert("Bạn đã hết lượt xem gợi ý");
-        suggestEL.textContent = 0;
-    } else if (sg > 0 && sg < 4) {
-        suggestOkSound.play();
-        const arrLetter = [];
-        if (sg < 1) {
+    // Đếm số ô trống
+    let emptyCells = 0;
+    cellAnswer.forEach((cell) => {
+        if (cell.innerText === "" && !cell.classList.contains('space')) {
+            emptyCells++;
+        }
+    });
+    // Kiểm tra nếu đã hoàn thành
+    if (emptyCells === 0) {
+        return; // Thoát khỏi hàm nếu đã hoàn thành
+    } else {
+        // Kiểm tra lượt gợi ý
+        if (sg === 0) {
+            suggestFailSound.play();
+            alert("Bạn đã hết lượt xem gợi ý");
             suggestEL.textContent = 0;
+            return;
         }
+        if (sg > 0) {
+            suggestOkSound.play();
+            // Tạo mảng chứa các ô trống và chữ cái tương ứng
+            const emptySlots = [];
+            for (const cell of cellAnswer) {
+                const index = cell.getAttribute('data-stt'); // Lấy giá trị của data-stt
+                if (cell.classList.contains('space')) {
+                    continue; // Nếu có lớp 'space', bỏ qua cell này
+                }
+                // Kiểm tra xem innerText có trống hay không (bao gồm cả khoảng trắng)
+                if (cell.innerText.trim() === "") {
+                    emptySlots.push({
+                        cell: cell,
+                        index: index
+                    });
+                }
+            }
+            // Chỉ gợi ý tối đa 3 vị trí hoặc tất cả các vị trí còn lại nếu ít hơn 3
+            const numHintsToShow = Math.min(3, emptySlots.length);
+            // Xáo trộn các vị trí trống
+            shuffle(emptySlots);
 
-        // Remove element space
-        cellAnswer.forEach((cell) => {
-            if (cell.innerText !== "") {
-                arrLetter.push(cell.innerText);
+            // Điền chữ cái vào các ô trống
+            for (let i = 0; i < numHintsToShow; i++) {
+                const slot = emptySlots[i];
+                slot.cell.innerText = arrAnswer[slot.index];
             }
-        });
-        if (sg === 3 && arrLetter.length === 0) {
-            arrCharacterAnswer = arrAnswer.filter((el) => el !== " ");
-        } else if (sg === 3 && arrLetter.length > 0) {
-            // Remove letter exits
-            const arrCharacter = arrAnswer.filter((el) => el !== " ");
-            arrCharacterAnswer = arrCharacter.slice(arrLetter.length);
-            console.log(arrCharacterAnswer);
-        }
-
-        len = arrCharacterAnswer.length;
-        // Get random letter of array answer
-        let index = Math.trunc(Math.random() * len);
-        let letter = arrCharacterAnswer[index];
-        console.log(letter);
-        // Remove letter suggested
-        arrCharacterAnswer.splice(index, 1);
-        console.log(arrCharacterAnswer);
-        // Get index of arrAnswer
-        let stt;
-        for (let i = 0; i < arrAnswer.length; i++) {
-            if (arrAnswer[i] === letter) {
-                stt = i;
-            }
-        }
-        arrAnswer[stt] = "*";
-        console.log(stt);
-        // Display cell suggest random
-        cellAnswer.forEach((cell) => {
-            if (cell.dataset.stt == stt) {
-                cell.innerText = letter;
-            }
-        });
-        sg--;
-        if (sg >= 0) {
+            // Giảm số lần gợi ý
+            sg--;
             suggestEL.textContent = sg;
-        }
-        cellAnswer.forEach((cell) => {
-            if (cell.innerText === "") {
-                arrCell.push(cell);
+            // Kiểm tra nếu đã điền hết các ô
+            emptyCells = 0; // Đặt lại biến emptyCells
+            cellAnswer.forEach((cell) => {
+                if (cell.innerText === "" && !cell.classList.contains('space')) {
+                    emptyCells++;
+                }
+            });
+            // Kiểm tra lại nếu đã hoàn thành
+            if (emptyCells === 0) {
+                checkAnswer(cellAnswer);
             }
-        });
-        if (arrCell.length === 0) {
-            checkAnswer(cellAnswer);
         }
     }
-});
+})
+;
+
 
 document.querySelector(".btn-confirm").addEventListener("click", function () {
     buttonPushSound.play();
@@ -714,7 +724,7 @@ const clearAnswerStatus = function () {
     selectWordEl.innerHTML = "";
 }
 // Reset all game state variables
-const restartGame = function() {
+const restartGame = function () {
     // Reset session storage
     sessionStorage.clear();
 
@@ -772,13 +782,16 @@ document.querySelector(".btn-restart").addEventListener("click", () => {
     notificationTitle.textContent = "Xác nhận khởi động lại";
     notificationBody.textContent = "Bạn có chắc chắn muốn khởi động lại trò chơi? Toàn bộ tiến trình sẽ bị mất.";
     btnAgree.setAttribute("data-request", "restart-game");
+    btnAgree.addEventListener("click", function () {
+        countDownSound.pause();
+    });
 
     openModal();
 });
 
 
 const existingClickHandler = document.querySelector(".btn-agree").onclick;
-document.querySelector(".btn-agree").onclick = function() {
+document.querySelector(".btn-agree").onclick = function () {
     const requestValue = this.getAttribute("data-request");
     if (requestValue === "restart-game") {
         restartGame();
@@ -830,6 +843,7 @@ btnRestartTeam.addEventListener('click', function () {
 
 btnConfirmRestartGroup.addEventListener('click', function () {
     buttonPushSound.play();
+    countDownSound.pause();
     restartCurrentTeam();
     warningModalRestartGroup.hide();
 })
