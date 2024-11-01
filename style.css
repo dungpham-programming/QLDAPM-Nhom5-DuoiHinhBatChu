@@ -472,3 +472,8 @@ header {
     grid-template-columns: .75fr 1fr 3fr .75fr; /* Chia làm 3 cột đều nhau */
     align-items: center;
 }
+#image_question .image_question {
+  width: 400px;
+  height: 300px;
+  object-fit: cover;
+}
