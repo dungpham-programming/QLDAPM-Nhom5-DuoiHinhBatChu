@@ -468,7 +468,12 @@ header {
 }
 
 .grid-record {
-  display: grid;
-  grid-template-columns: 0.75fr 1fr 3fr 0.75fr; /* Chia làm 3 cột đều nhau */
-  align-items: center;
+    display: grid;
+    grid-template-columns: .75fr 1fr 3fr .75fr; /* Chia làm 3 cột đều nhau */
+    align-items: center;
+}
+
+#image_question .image_question {
+  width: 250px;
+  height: 175px;
 }
