@@ -26,6 +26,7 @@
             </select>
         </div>
         <button type="button" class="btn btn-play">Chơi ngay</button>
+      </div>
     </div>
 </div>
 
@@ -58,7 +59,7 @@
                     <div><strong id="teamName"></strong></div>
                     <div>Câu hỏi số <strong id="nowQuestionNum"></strong></div>
                     <div>Điểm: <strong class="score">0</strong></div>
-                    <div>Gơi ý còn <strong class="suggest">3</strong> lần</div>
+                    <div>Gợi ý còn <strong class="suggest">3</strong> lần</div>
                     <div>Thời gian còn lại: <strong class="time">30 s</strong></div>
                 </header>
                 <section id="image_question">
@@ -196,8 +197,34 @@
                 </div>
             </div>
         </div>
+      </div>
     </div>
-</div>
+    <!-- Thông báo mỗi khi team chơi xong. -->
+    <div id="reportIntro" class="report">
+      <span id="close2" class="close">
+        <i class="far fa-window-close"></i>
+      </span>
+      <h2>Kết quả</h2>
+      <div class="content">
+        <div class="content-sub">
+          <i class="fa-solid fa-bullseye"></i>
+          <p id="reportScorer" class="fas-solid"></p>
+        </div>
+        <div class="content-sub">
+          <i class="fa-solid fa-clock"></i>
+          <p id="reportTimer" class="fas-solid"></p>
+        </div>
+        <div class="content-sub">
+          <i class="fa-solid fa-forward"></i>
+          <p id="reportNextTeam" class="fas-solid"></p>
+        </div>
+        <button id="continue" class="pushable">
+          <span class="shadow"></span>
+          <span class="edge"></span>
+          <span class="front"> Sẵn sàng! </span>
+        </button>
+      </div>
+    </div>
 
 <!-- Màn hình cảnh báo khi bấm Tiếp theo -->
 <div class="modal fade" id="warningModal" tabindex="-1" aria-labelledby="warningModalLabel" aria-hidden="true">
@@ -239,9 +266,11 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
                 <button type="button" class="btn btn-warning" id="confirmRestart">Chơi lại</button>
             </div>
+
         </div>
+      </div>
     </div>
-</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/js/all.min.js"></script>
