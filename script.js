@@ -165,6 +165,8 @@ const startGame = function () {
   // Lấy lại thông tin từ Session Storage mới nhất.
   answered = false;
   teams = JSON.parse(sessionStorage.getItem("teams"));
+  sg = 3;
+  suggestEL.textContent = sg;
   q = 1; // Đặt q trước khi displayCurrentTeam
   displayCurrentTeam();
   settingZone.style.display = "none";
