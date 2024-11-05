@@ -113,14 +113,32 @@ function createTeams(numTeam) {
 // Tuỳ chỉnh tên của đội chơi tại settingScreens.
 function updatePlayerNames() {
   const teams = JSON.parse(sessionStorage.getItem("teams"));
-
   const inputName = document.querySelectorAll(".inputName");
+
+  const nameSet = new Set();
+  let hasDupName = false;
+
   inputName.forEach((input, index) => {
-    if (input.value.trim() !== "") {
-      teams[index].name = input.value;
+    const name = input.value.trim();
+    if (nameSet.has(name)) {
+      hasDupName = true;
+      input.classList.add("inputError");
+    } else {
+      nameSet.add(name);
+      input.classList.remove("inputError");
+    }
+
+    if (!hasDupName && name !== "" && index < teams.length) {
+      teams[index].name = name;
     }
   });
+  // Kiểm tra và hiển thị thông báo lỗi nếu có tên trùng
+  if (hasDupName) {
+    alert("Lỗi tên đội bị trùng lặp. Vui lòng đặt tên khác nhau cho từng đội.");
+    return false;
+  }
   sessionStorage.setItem("teams", JSON.stringify(teams));
+  return true;
 }
 
 // Hiển thị số lượng đội chơi
@@ -202,8 +220,9 @@ function saveScoreAndTime(score, time) {
 // Xử lý nút "Sẵn sàng."
 document.getElementById("fight").addEventListener("click", () => {
   buttonPushSound.play();
-  updatePlayerNames();
-  startGame();
+  if (updatePlayerNames()) {
+    startGame();
+  }
 });
 
 // Hàm tạo ra các bộ (pack) câu hỏi cho các team

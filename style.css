@@ -102,6 +102,10 @@ body {
   background-color: #f1e8e8;
 }
 
+#teamInfo .teamInputDiv .inputError {
+  background-color: #ea2525;
+}
+
 #settingsScreen .footer {
   text-align: center;
 }
