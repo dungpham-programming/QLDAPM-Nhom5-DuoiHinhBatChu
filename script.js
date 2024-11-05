@@ -286,7 +286,7 @@ const displayCellsSelect = function (arrCharacter) {
     // console.log(arrCellsSelect);
     const arrCellsShuff = shuffleArray(arrCellsSelect);
     for (let i = 0; i < arrCellsShuff.length; i++) {
-        let html = `<li class="word" data-cell='${i}'>${arrCellsShuff[i]}</li>`;
+        let html = `<li class="word col-4 col-md-3 col-lg-2 " data-cell='${i}'>${arrCellsShuff[i]}</li>`;
         selectWordEl.innerHTML += html;
     }
 };
