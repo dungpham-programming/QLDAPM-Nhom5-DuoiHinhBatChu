@@ -414,10 +414,10 @@ const countdown = function () {
                 countDownSound.currentTime = 0; // Đặt lại vị trí âm thanh về đầu
             }
         }
-        if (time < 6) {
+        // Thay đổi màu khi thời gian <= 10
+        if (time <= 10) {
             timeEl.style.color = "red";
-        }
-        if (time > 5) {
+        } else {
             timeEl.style.color = "black";
         }
     };
