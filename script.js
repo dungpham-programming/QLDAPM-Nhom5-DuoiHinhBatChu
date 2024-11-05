@@ -402,9 +402,13 @@ const checkAnswer = function (cellAnswer) {
   answerResultEl.textContent = `Đáp án là: ${nowQuestion.answer}`;
 };
 
+// Biến cờ để kiểm soát việc tạm dừng countdown
+let isCountdownPaused = false;
+
 // Ham dem nguoc thoi gian
 const countdown = function () {
   const getTime = function () {
+    if (isCountdownPaused) return;
     if (time < 0 && q <= nowPack.length) {
       enableBtnSuggest();
       nextQuestion();
@@ -444,6 +448,7 @@ const countdown = function () {
 const nextQuestion = function () {
   clearInterval(intervalID);
   if (q < endQ) {
+    isCountdownPaused = false; // Mở lại countdown cho câu hỏi tiếp theo
     answered = false; // Đánh dấu là chưa trả lời khi đến câu hỏi tiếp theo
     buttonPushSound.play();
     q++;
@@ -459,6 +464,7 @@ const nextQuestion = function () {
     arrCharacterAnswer = arrAnswer.filter((el) => el != " "); // Cập nhật lại mảng Ans gợi ý khi sang câu hỏi kế tiếp.
     time = 30;
   } else {
+    isCountdownPaused = true; // Tạm dừng countdown ở câu hỏi cuối
     teamDoneSound.play();
     const elapsedTime = stopTimer();
     saveScoreAndTime(score, elapsedTime); //Lưu điểm cho team1.
