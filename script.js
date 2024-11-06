@@ -1,6 +1,6 @@
 "use strict";
 
-// Select element
+// Select element auth
 const scoreEl = document.querySelector(".score");
 const timeEl = document.querySelector(".time");
 const imageEl = document.querySelector("img.image_question");
@@ -14,6 +14,7 @@ const answerResultEl = document.querySelector(".answer_result");
 const suggestEL = document.querySelector(".suggest");
 const btnTestModal = document.querySelector(".test-modal");
 const btnAgree = document.querySelector(".btn-agree");
+
 const rankingEl = document.querySelector(".ranking-list");
 const questionsPerTeam = 10;
 const reportScorer = document.querySelector("#reportScorer");
@@ -28,11 +29,13 @@ const buttonPushSound = new Audio("/sounds/button_push.mp3");
 const suggestOkSound = new Audio("/sounds/suggest_ok.mp3");
 const suggestFailSound = new Audio("/sounds/suggest_fail.mp3");
 const correctSound = new Audio("/sounds/correct.mp3");
-const btnRestartTeam = document.querySelector('.btn_restart_group');
+const btnRestartTeam = document.querySelector(".btn_restart_group");
 const warningModal = bootstrap.Modal.getOrCreateInstance("#warningModal");
 const btnConfirmNext = document.querySelector("#confirmNext");
-const warningModalRestartGroup = bootstrap.Modal.getOrCreateInstance('#warningModalRestartGroup');
-const btnConfirmRestartGroup = document.querySelector('#confirmRestart')
+const warningModalRestartGroup = bootstrap.Modal.getOrCreateInstance(
+    "#warningModalRestartGroup"
+);
+const btnConfirmRestartGroup = document.querySelector("#confirmRestart");
 const errorSound = new Audio("/sounds/error.mp3");
 const countDownSound = new Audio("/sounds/count_down.mp4");
 teamDoneSound.volume = 0.5;
@@ -46,7 +49,9 @@ errorSound.volume = 0.5;
 let reportIntro = document.getElementById("reportIntro");
 let closeI = document.getElementById("close2");
 let endQ = NUM_QUES;
+
 let q;
+
 let score = 0;
 let sg = 3;
 let arrCharacterAnswer = [];
@@ -58,12 +63,15 @@ let playing = false;
 // Tạm thời để mặc định là 4 để phân chia các pack câu hỏi
 let totalTeam = 4;
 let nowTeamIndex = 0;
-let nowTeamName
+let nowTeamName;
 let allPacks = [];
 let nowPack;
 
 let timeTeam = 0;
 let intervalTeam;
+let answered = false;
+
+let isSgDisabled = false; // Kiểm soát nút gợi ý.
 
 // Setup trò chơi.
 const btnPlaying = document.querySelector(".btn-play");
@@ -152,13 +160,15 @@ function goBackToStart() {
 }
 
 const setStartStateByTeamIndex = function (index) {
-
-}
+};
 
 const startGame = function () {
     // Lấy lại thông tin từ Session Storage mới nhất.
+    answered = false;
     teams = JSON.parse(sessionStorage.getItem("teams"));
-    q = 1;      // Đặt q trước khi displayCurrentTeam
+    sg = 3;
+    suggestEL.textContent = sg;
+    q = 1; // Đặt q trước khi displayCurrentTeam
     displayCurrentTeam();
     settingZone.style.display = "none";
     playingZone.style.display = "block";
@@ -166,12 +176,12 @@ const startGame = function () {
     nowPack = allPacks[0];
     console.log(nowPack);
     displayQuestion(nowPack[0]);
-    arrAnswer = getArrayCharacter(nowPack[0].answer);   // Tạo ra gợi ý
+    arrAnswer = getArrayCharacter(nowPack[0].answer); // Tạo ra gợi ý
     countdown();
     timeTeam = 0;
     startTimer();
     updateRankingUi();
-}
+};
 
 let currentTeamIndex = 0;
 let teams = JSON.parse(sessionStorage.getItem("teams"));
@@ -206,7 +216,10 @@ const createPacksQuestion = function () {
     }
 
     // Tạo mảng để chứa index của câu hổi
-    const indexQuestionArray = Array.from({length: questions.length}, (_, i) => i);
+    const indexQuestionArray = Array.from(
+        {length: questions.length},
+        (_, i) => i
+    );
     const shuffleIndexes = shuffleIndexQuestionArray(indexQuestionArray);
 
     // Tạo mảng để chứa các pack câu hỏi dựa trên số lượng team
@@ -222,7 +235,7 @@ const createPacksQuestion = function () {
     }
 
     return packs;
-}
+};
 
 function startTimer() {
     intervalTeam = setInterval(() => {
@@ -303,10 +316,11 @@ const shuffleIndexQuestionArray = function (array) {
         [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
-}
+};
 
 // Hiển thị câu đố hoàn chỉnh. <8.2>
 const displayQuestion = function (question) {
+    console.log(answered);
     imageEl.src = question.url_image; //Hiển thị hình ảnh câu đố. <8.2.1>
     displayListCells(question.answer);
 };
@@ -335,7 +349,10 @@ const updateScore = function () {
 };
 
 // Function check answer from client
+//
 const checkAnswer = function (cellAnswer) {
+    // Đánh dấu là đã trả lời
+    answered = true;
     selectWordEl.style.display = "none";
     resultEl.style.display = "block";
     // Get answer of player
@@ -352,7 +369,6 @@ const checkAnswer = function (cellAnswer) {
     clearInterval(intervalID);
 
     if (answer === strCharacter) {
-        console.log("Correct !");
         // Initial score is 10. Handle score when time over 15s in countdown()
         updateScore();
         statusResultEl.classList.remove("incorrect");
@@ -360,13 +376,12 @@ const checkAnswer = function (cellAnswer) {
         statusResultEl.textContent = "Chính Xác!";
         correctSound.play();
     } else {
-        console.log("Wrong!");
-        console.log(answer);
         errorSound.play();
         statusResultEl.classList.remove("correct");
         statusResultEl.classList.add("incorrect");
         statusResultEl.textContent = "Không Chính Xác!";
     }
+    console.log(answered);
     // Display answer
     answerResultEl.textContent = `Đáp án là: ${nowQuestion.answer}`;
 };
@@ -375,9 +390,10 @@ const checkAnswer = function (cellAnswer) {
 const countdown = function () {
     const getTime = function () {
         if (time < 0 && q <= nowPack.length) {
+            enableBtnSuggest();
             nextQuestion();
+            // suggestEL.textContent = sg;
             timeEl.textContent = "30 s";
-            sg = 3;
             intervalID = setInterval(getTime, 1000);
         } else if (time === 0 && q > nowPack.length) {
             timeEl.textContent = "0 s";
@@ -387,7 +403,7 @@ const countdown = function () {
         }
         if (time < 11 && time > 0) {
             if (countDownSound.paused) {
-                countDownSound.play().catch(error => {
+                countDownSound.play().catch((error) => {
                     console.error("Lỗi khi phát âm thanh: ", error);
                 });
             }
@@ -410,8 +426,10 @@ const countdown = function () {
 
 // Function next question
 const nextQuestion = function () {
+    countDownSound.pause();
     clearInterval(intervalID);
     if (q < endQ) {
+        answered = false;       // Đánh dấu là chưa trả lời khi đến câu hỏi tiếp theo
         buttonPushSound.play();
         q++;
         const nowQuestion = nowPack[q - 1];
@@ -425,6 +443,7 @@ const nextQuestion = function () {
         arrAnswer = getArrayCharacter(nowQuestion.answer);
         time = 30;
     } else {
+        console.log("count down")
         teamDoneSound.play();
         const elapsedTime = stopTimer();
         saveScoreAndTime(score, elapsedTime); //Lưu điểm cho team1.
@@ -444,7 +463,7 @@ closeI.onclick = function () {
 
 function resetScoreAndQ() {
     score = 0;
-    q = 0;      // Do khi gọi nextQuestion, q sẽ tăng thêm 1 ngay lần gọi => q = 0
+    q = 0; // Do khi gọi nextQuestion, q sẽ tăng thêm 1 ngay lần gọi => q = 0
     timeTeam = 0;
 }
 
@@ -453,12 +472,14 @@ function reportEnding() {
     const teams = JSON.parse(sessionStorage.getItem("teams"));
     reportScorer.textContent = `${teams[currentTeamIndex].score} điểm`;
     reportTimer.textContent = `${teams[currentTeamIndex].time} giây`;
-    (currentTeamIndex < teams.length - 1) ? reportNextTeam.textContent = teams[currentTeamIndex + 1].name
-        : reportNextTeam.textContent = "None";
+    currentTeamIndex < teams.length - 1
+        ? (reportNextTeam.textContent = teams[currentTeamIndex + 1].name)
+        : (reportNextTeam.textContent = "None");
 }
 
 document.getElementById("continue").addEventListener("click", () => {
     resetScoreAndQ();
+    countDownSound.pause();
     overlay.style.display = "none";
     teams = JSON.parse(sessionStorage.getItem("teams"));
     if (currentTeamIndex < teams.length - 1) {
@@ -467,12 +488,13 @@ document.getElementById("continue").addEventListener("click", () => {
         reportIntro.style.display = "none";
         displayCurrentTeam();
         // displayQuestion(questions[0]);
-        nowPack = allPacks[currentTeamIndex];       // Cập nhật pack câu hỏi cho đội kế tiếp
+        nowPack = allPacks[currentTeamIndex]; // Cập nhật pack câu hỏi cho đội kế tiếp
         console.log(nowPack);
         sg = 3;
         suggestEL.textContent = sg;
+        enableBtnSuggest();
         nextQuestion();
-        countdown();
+        countdown(); //Lỗi
         startTimer();
     } else {
         totalRankingSound.play();
@@ -485,17 +507,17 @@ document.getElementById("continue").addEventListener("click", () => {
 const openTotalRanking = function () {
     const modal = bootstrap.Modal.getOrCreateInstance("#totalRanking");
     modal.show();
-}
+};
 
 // Hàm đóng total ranking
 const closeTotalRanking = function () {
     const modal = bootstrap.Modal.getOrCreateInstance("#totalRanking");
     modal.hide();
-}
+};
 // Hàm mở modal
 const openModal = function () {
     modal.show();
-}
+};
 
 // Hàm đóng modal
 const closeModal = function () {
@@ -507,15 +529,19 @@ const updateRanking = function () {
     const teams = JSON.parse(sessionStorage.getItem("teams"));
     teams.sort((a, b) => b.score - a.score);
     return teams;
-}
+};
 
 const updateRankingHtml = function (teams, elementTag) {
     for (let i = 0; i < teams.length; i++) {
-        const record = document.querySelector(`${elementTag} .grid-record[data-rank="${i + 1}"]`);
+        const record = document.querySelector(
+            `${elementTag} .grid-record[data-rank="${i + 1}"]`
+        );
         if (record) {
             record.style.display = "grid";
             record.innerHTML = `
-                <i class="fa-solid fa-medal ps-1" style="color: ${teams[i].score >= 0 ? "#FFD43B" : "red"}; font-size: 24px"></i>
+                <i class="fa-solid fa-medal ps-1" style="color: ${
+                teams[i].score >= 0 ? "#FFD43B" : "red"
+            }; font-size: 24px"></i>
                 <div class="rank">
                     ${i + 1}
                 </div>
@@ -528,35 +554,37 @@ const updateRankingHtml = function (teams, elementTag) {
             `;
         }
     }
-}
+};
 
 const updateRankingUi = function () {
     const teams = updateRanking();
     const records = document.querySelectorAll(".ranking .grid-record");
-    records.forEach(record => {
-        record.innerHTML = ''; // Xóa toàn bộ HTML bên trong thẻ
+    records.forEach((record) => {
+        record.innerHTML = ""; // Xóa toàn bộ HTML bên trong thẻ
     });
     updateRankingHtml(teams, ".ranking");
-}
+};
 
 const showTotalRanking = function () {
     updateRankingUi();
     reportIntro.style.display = "none";
     const teams = updateRanking();
-    const totalRankingRecords = document.querySelectorAll("#totalRanking .grid-record");
-    totalRankingRecords.forEach(record => {
-        record.innerHTML = ''; // Xóa toàn bộ HTML bên trong thẻ
+    const totalRankingRecords = document.querySelectorAll(
+        "#totalRanking .grid-record"
+    );
+    totalRankingRecords.forEach((record) => {
+        record.innerHTML = ""; // Xóa toàn bộ HTML bên trong thẻ
     });
     updateRankingHtml(teams, "#totalRanking");
     openTotalRanking();
-}
+};
 
 // Xóa nội dung của các trường chơi như câu hỏi, ô đáp án và ô lựa chọn ký tự cho đáp án
 const clearPlayingField = function () {
     imageEl.src = "";
     answerEl.innerHTML = "";
     selectWordEl.innerHTML = "";
-}
+};
 
 // Khi bấm vào nút Tiếp theo
 btnNext.addEventListener("click", function () {
@@ -564,6 +592,7 @@ btnNext.addEventListener("click", function () {
         buttonPushSound.play();
         warningModal.show();
     } else {
+        enableBtnSuggest();
         nextQuestion();
         countdown();
     }
@@ -572,6 +601,7 @@ btnNext.addEventListener("click", function () {
 // Xử lý khi người dùng xác nhận muốn bỏ qua
 btnConfirmNext.addEventListener("click", function () {
     warningModal.hide();
+    enableBtnSuggest();
     nextQuestion();
     countdown();
 });
@@ -589,7 +619,7 @@ const isQuestionCompleted = () => {
 
 // Select a letter from list letter
 selectWordEl.addEventListener("click", function (e) {
-    console.log(e.target.localName === "li");
+    // console.log(e.target.localName === "li");
     if (e.target.localName === "li") {
         const cellAnswer = document.querySelectorAll(".cell_answer");
         const arrCell = [];
@@ -604,6 +634,7 @@ selectWordEl.addEventListener("click", function (e) {
 
         // Call checkAnswer() when length = 1 (Only 1 char present in arrCell)
         if (arrCell.length === 1) {
+            disableBtnSuggest();
             checkAnswer(cellAnswer);
         }
     }
@@ -611,7 +642,7 @@ selectWordEl.addEventListener("click", function (e) {
 
 // Undo select from answer cell
 answerEl.addEventListener("click", function (e) {
-    if (e.target.localName === "div") {
+    if (!answered && e.target.localName === "div") {
         const cellSelect = document.querySelectorAll(".word");
         cellSelect.forEach((cell) => {
             if (cell.dataset.cell === e.target.dataset.cell) {
@@ -622,73 +653,96 @@ answerEl.addEventListener("click", function (e) {
     }
 });
 
+// Hàm để trộn mảng ngẫu nhiên
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1)); // Lấy chỉ số ngẫu nhiên
+        [array[i], array[j]] = [array[j], array[i]]; // Hoán đổi
+    }
+}
+
+
 // Xử lý phần gợi ý câu hỏi. 8.5
 btnSuggest.addEventListener("click", function () {
     const cellAnswer = document.querySelectorAll(".cell_answer");
-    const arrCell = [];
-    if (sg === 0) {
-        suggestFailSound.play();
-        alert("Bạn đã hết lượt xem gợi ý");
-        suggestEL.textContent = 0;
-    } else if (sg > 0 && sg < 4) {
-        suggestOkSound.play();
-        const arrLetter = [];
-        if (sg < 1) {
+    // Đếm số ô trống
+    let emptyCells = 0;
+    cellAnswer.forEach((cell) => {
+        if (cell.innerText === "" && !cell.classList.contains('space')) {
+            emptyCells++;
+        }
+    });
+    // Kiểm tra nếu đã hoàn thành
+    if (emptyCells === 0) {
+        return; // Thoát khỏi hàm nếu đã hoàn thành
+    } else {
+        // Kiểm tra lượt gợi ý
+        if (sg === 0) {
+            suggestFailSound.play();
+            alert("Bạn đã hết lượt xem gợi ý");
             suggestEL.textContent = 0;
+            return;
         }
+        if (sg > 0) {
+            suggestOkSound.play();
+            // Tạo mảng chứa các ô trống và chữ cái tương ứng
+            const emptySlots = [];
+            for (const cell of cellAnswer) {
+                const index = cell.getAttribute('data-stt'); // Lấy giá trị của data-stt
+                if (cell.classList.contains('space')) {
+                    continue; // Nếu có lớp 'space', bỏ qua cell này
+                }
+                // Kiểm tra xem innerText có trống hay không (bao gồm cả khoảng trắng)
+                if (cell.innerText.trim() === "") {
+                    emptySlots.push({
+                        cell: cell,
+                        index: index
+                    });
+                }
+            }
+            // Chỉ gợi ý tối đa 3 vị trí hoặc tất cả các vị trí còn lại nếu ít hơn 3
+            const numHintsToShow = Math.min(3, emptySlots.length);
+            // Xáo trộn các vị trí trống
+            shuffle(emptySlots);
 
-        // Remove element space
-        cellAnswer.forEach((cell) => {
-            if (cell.innerText !== "") {
-                arrLetter.push(cell.innerText);
+            // Điền chữ cái vào các ô trống
+            for (let i = 0; i < numHintsToShow; i++) {
+                const slot = emptySlots[i];
+                slot.cell.innerText = arrAnswer[slot.index];
             }
-        });
-        if (sg === 3 && arrLetter.length === 0) {
-            arrCharacterAnswer = arrAnswer.filter((el) => el !== " ");
-        } else if (sg === 3 && arrLetter.length > 0) {
-            // Remove letter exits
-            const arrCharacter = arrAnswer.filter((el) => el !== " ");
-            arrCharacterAnswer = arrCharacter.slice(arrLetter.length);
-            console.log(arrCharacterAnswer);
-        }
-
-        len = arrCharacterAnswer.length;
-        // Get random letter of array answer
-        let index = Math.trunc(Math.random() * len);
-        let letter = arrCharacterAnswer[index];
-        console.log(letter);
-        // Remove letter suggested
-        arrCharacterAnswer.splice(index, 1);
-        console.log(arrCharacterAnswer);
-        // Get index of arrAnswer
-        let stt;
-        for (let i = 0; i < arrAnswer.length; i++) {
-            if (arrAnswer[i] === letter) {
-                stt = i;
-            }
-        }
-        arrAnswer[stt] = "*";
-        console.log(stt);
-        // Display cell suggest random
-        cellAnswer.forEach((cell) => {
-            if (cell.dataset.stt == stt) {
-                cell.innerText = letter;
-            }
-        });
-        sg--;
-        if (sg >= 0) {
+            // Giảm số lần gợi ý
+            sg--;
             suggestEL.textContent = sg;
-        }
-        cellAnswer.forEach((cell) => {
-            if (cell.innerText === "") {
-                arrCell.push(cell);
+            // Kiểm tra nếu đã điền hết các ô
+            emptyCells = 0; // Đặt lại biến emptyCells
+            cellAnswer.forEach((cell) => {
+                if (cell.innerText === "" && !cell.classList.contains('space')) {
+                    emptyCells++;
+                }
+            });
+            // Kiểm tra lại nếu đã hoàn thành
+            if (emptyCells === 0) {
+                disableBtnSuggest();
+                checkAnswer(cellAnswer);
             }
-        });
-        if (arrCell.length === 0) {
-            checkAnswer(cellAnswer);
+        } else if (sg === 0) {
+            suggestFailSound.play();
+            alert("Không được sử dụng gợi ý");
+            suggestEL.textContent = 0;
         }
     }
 });
+
+// Vô hiệu hoá và bật lại button.
+function disableBtnSuggest() {
+    isSgDisabled = false;
+    btnSuggest.classList.add("disabled");
+}
+
+function enableBtnSuggest() {
+    isSgDisabled = true;
+    btnSuggest.classList.remove("disabled");
+}
 
 document.querySelector(".btn-confirm").addEventListener("click", function () {
     buttonPushSound.play();
@@ -708,9 +762,9 @@ const clearAnswerStatus = function () {
     imageEl.src = "";
     answerEl.innerHTML = "";
     selectWordEl.innerHTML = "";
-}
+};
 // Reset all game state variables
-const restartGame = function() {
+const restartGame = function () {
     // Reset session storage
     sessionStorage.clear();
 
@@ -765,16 +819,19 @@ document.querySelector(".btn-restart").addEventListener("click", () => {
     const notificationBody = document.querySelector("#modal-body");
     const btnAgree = document.querySelector(".btn-agree");
 
+
     notificationTitle.textContent = "Xác nhận khởi động lại";
     notificationBody.textContent = "Bạn có chắc chắn muốn khởi động lại trò chơi? Toàn bộ tiến trình sẽ bị mất.";
     btnAgree.setAttribute("data-request", "restart-game");
+    btnAgree.addEventListener("click", function () {
+        countDownSound.pause();
+    });
 
     openModal();
 });
 
-
 const existingClickHandler = document.querySelector(".btn-agree").onclick;
-document.querySelector(".btn-agree").onclick = function() {
+document.querySelector(".btn-agree").onclick = function () {
     const requestValue = this.getAttribute("data-request");
     if (requestValue === "restart-game") {
         restartGame();
@@ -783,7 +840,6 @@ document.querySelector(".btn-agree").onclick = function() {
         existingClickHandler.call(this);
     }
 };
-
 
 function restartCurrentTeam() {
     q = 1;
@@ -820,12 +876,13 @@ function restartCurrentTeam() {
     updateRankingUi();
 }
 
-btnRestartTeam.addEventListener('click', function () {
+btnRestartTeam.addEventListener("click", function () {
     warningModalRestartGroup.show();
 });
 
 btnConfirmRestartGroup.addEventListener('click', function () {
     buttonPushSound.play();
+    countDownSound.pause();
     restartCurrentTeam();
     warningModalRestartGroup.hide();
 })
