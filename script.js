@@ -475,13 +475,6 @@ const nextQuestion = function () {
   }
 };
 
-// Xử lý khi teams chơi xong.
-closeI.onclick = function () {
-  buttonPushSound.play();
-  reportIntro.style.display = "none";
-  overlay.style.display = "none";
-};
-
 function resetScoreAndQ() {
   score = 0;
   q = 0; // Do khi gọi nextQuestion, q sẽ tăng thêm 1 ngay lần gọi => q = 0
@@ -753,17 +746,6 @@ function enableBtnSuggest() {
   btnSuggest.classList.remove("disabled");
 }
 
-document.querySelector(".btn-confirm").addEventListener("click", function () {
-  buttonPushSound.play();
-  playingZone.style.display = "none";
-  startZone.style.display = "block";
-  currentTeamIndex = 0;
-  closeTotalRanking();
-  clearPlayingField();
-  clearInterval(intervalID);
-  sessionStorage.clear();
-});
-
 const clearAnswerStatus = function () {
   statusResultEl.classList.remove("incorrect");
   statusResultEl.classList.remove("correct");
@@ -788,6 +770,7 @@ const restartGame = function () {
   allPacks = [];
   nowPack = null;
   arrCharacterAnswer = [];
+  isCountdownPaused = false;
 
   // Clear intervals
   clearInterval(intervalID);
@@ -823,18 +806,26 @@ const restartGame = function () {
 };
 
 // restart game
-document.querySelector(".btn-restart").addEventListener("click", () => {
-  // Show confirmation modal before restarting
-  const notificationTitle = document.querySelector("#notificationTitle");
-  const notificationBody = document.querySelector("#modal-body");
-  const btnAgree = document.querySelector(".btn-agree");
+document.querySelectorAll(".btn-restart").forEach((button) => {
+  button.addEventListener("click", () => {
+    // PHân biệt giữa nút chơi lại toàn bộ game # chơi lại 8.14.12
+    const skipModal = button.getAttribute("data-skip-modal");
+    if (skipModal === "true") {
+      restartGame();
+    } else {
+      // Show confirmation modal before restarting
+      const notificationTitle = document.querySelector("#notificationTitle");
+      const notificationBody = document.querySelector("#modal-body");
+      const btnAgree = document.querySelector(".btn-agree");
 
-  notificationTitle.textContent = "Xác nhận khởi động lại";
-  notificationBody.textContent =
-    "Bạn có chắc chắn muốn khởi động lại trò chơi? Toàn bộ tiến trình sẽ bị mất.";
-  btnAgree.setAttribute("data-request", "restart-game");
+      notificationTitle.textContent = "Xác nhận khởi động lại";
+      notificationBody.textContent =
+        "Bạn có chắc chắn muốn khởi động lại trò chơi? Toàn bộ tiến trình sẽ bị mất.";
+      btnAgree.setAttribute("data-request", "restart-game");
 
-  openModal();
+      openModal();
+    }
+  });
 });
 
 const existingClickHandler = document.querySelector(".btn-agree").onclick;
