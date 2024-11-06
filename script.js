@@ -111,6 +111,7 @@ function createTeams(numTeam) {
 }
 
 // Tuỳ chỉnh tên của đội chơi tại settingScreens.
+// Tuỳ chỉnh tên của đội chơi tại settingScreens.
 function updatePlayerNames() {
   const teams = JSON.parse(sessionStorage.getItem("teams"));
   const inputName = document.querySelectorAll(".inputName");
@@ -183,6 +184,8 @@ const startGame = function () {
   // Lấy lại thông tin từ Session Storage mới nhất.
   answered = false;
   teams = JSON.parse(sessionStorage.getItem("teams"));
+  sg = 3;
+  suggestEL.textContent = sg;
   q = 1; // Đặt q trước khi displayCurrentTeam
   displayCurrentTeam();
   settingZone.style.display = "none";
@@ -224,7 +227,6 @@ document.getElementById("fight").addEventListener("click", () => {
     startGame();
   }
 });
-
 // Hàm tạo ra các bộ (pack) câu hỏi cho các team
 const createPacksQuestion = function () {
   if (questions.length < totalTeam * questionsPerTeam) {
@@ -402,7 +404,7 @@ const checkAnswer = function (cellAnswer) {
   answerResultEl.textContent = `Đáp án là: ${nowQuestion.answer}`;
 };
 
-// Biến cờ để kiểm soát việc tạm dừng countdown
+// Biến cờ để kiểm soát việc tạm dừng countdown 8.14.15.
 let isCountdownPaused = false;
 
 // Ham dem nguoc thoi gian
@@ -446,6 +448,7 @@ const countdown = function () {
 
 // Function next question
 const nextQuestion = function () {
+  countDownSound.pause();
   clearInterval(intervalID);
   if (q < endQ) {
     isCountdownPaused = false; // Mở lại countdown cho câu hỏi tiếp theo
@@ -474,7 +477,6 @@ const nextQuestion = function () {
     reportIntro.style.display = "block";
   }
 };
-
 function resetScoreAndQ() {
   score = 0;
   q = 0; // Do khi gọi nextQuestion, q sẽ tăng thêm 1 ngay lần gọi => q = 0
@@ -493,6 +495,7 @@ function reportEnding() {
 
 document.getElementById("continue").addEventListener("click", () => {
   resetScoreAndQ();
+  countDownSound.pause();
   overlay.style.display = "none";
   teams = JSON.parse(sessionStorage.getItem("teams"));
   if (currentTeamIndex < teams.length - 1) {
@@ -666,72 +669,81 @@ answerEl.addEventListener("click", function (e) {
   }
 });
 
+// Hàm để trộn mảng ngẫu nhiên
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1)); // Lấy chỉ số ngẫu nhiên
+    [array[i], array[j]] = [array[j], array[i]]; // Hoán đổi
+  }
+}
+
 // Xử lý phần gợi ý câu hỏi. 8.5
 btnSuggest.addEventListener("click", function () {
   const cellAnswer = document.querySelectorAll(".cell_answer");
-  const arrCell = [];
-
-  if (sg === 0) {
-    suggestFailSound.play();
-    alert("Không được sử dụng gợi ý");
-    suggestEL.textContent = 0;
-  } else if (sg > 0 && sg < 4) {
-    suggestOkSound.play();
-    const arrLetter = [];
-    if (sg < 1) {
+  // Đếm số ô trống
+  let emptyCells = 0;
+  cellAnswer.forEach((cell) => {
+    if (cell.innerText === "" && !cell.classList.contains("space")) {
+      emptyCells++;
+    }
+  });
+  // Kiểm tra nếu đã hoàn thành
+  if (emptyCells === 0) {
+    return; // Thoát khỏi hàm nếu đã hoàn thành
+  } else {
+    // Kiểm tra lượt gợi ý
+    if (sg === 0) {
+      suggestFailSound.play();
+      alert("Bạn đã hết lượt xem gợi ý");
       suggestEL.textContent = 0;
+      return;
     }
+    if (sg > 0) {
+      suggestOkSound.play();
+      // Tạo mảng chứa các ô trống và chữ cái tương ứng
+      const emptySlots = [];
+      for (const cell of cellAnswer) {
+        const index = cell.getAttribute("data-stt"); // Lấy giá trị của data-stt
+        if (cell.classList.contains("space")) {
+          continue; // Nếu có lớp 'space', bỏ qua cell này
+        }
+        // Kiểm tra xem innerText có trống hay không (bao gồm cả khoảng trắng)
+        if (cell.innerText.trim() === "") {
+          emptySlots.push({
+            cell: cell,
+            index: index,
+          });
+        }
+      }
+      // Chỉ gợi ý tối đa 3 vị trí hoặc tất cả các vị trí còn lại nếu ít hơn 3
+      const numHintsToShow = Math.min(3, emptySlots.length);
+      // Xáo trộn các vị trí trống
+      shuffle(emptySlots);
 
-    // Remove element space
-    cellAnswer.forEach((cell) => {
-      if (cell.innerText !== "") {
-        arrLetter.push(cell.innerText);
+      // Điền chữ cái vào các ô trống
+      for (let i = 0; i < numHintsToShow; i++) {
+        const slot = emptySlots[i];
+        slot.cell.innerText = arrAnswer[slot.index];
       }
-    });
-    if (sg === 3 && arrLetter.length === 0) {
-      arrCharacterAnswer = arrAnswer.filter((el) => el !== " ");
-    } else if (sg === 3 && arrLetter.length > 0) {
-      // Remove letter exits
-      const arrCharacter = arrAnswer.filter((el) => el !== " ");
-      arrCharacterAnswer = arrCharacter.slice(arrLetter.length);
-      console.log("Array character answer: ", arrCharacterAnswer);
-    }
-
-    len = arrCharacterAnswer.length;
-    // Get random letter of array answer
-    let index = Math.trunc(Math.random() * len);
-    let letter = arrCharacterAnswer[index];
-    console.log("chữ cái được lấy ra", letter);
-    // Remove letter suggested
-    arrCharacterAnswer.splice(index, 1);
-    console.log("Xoá ký tự đã gợi ý", arrCharacterAnswer);
-    // Get index of arrAnswer
-    let stt;
-    for (let i = 0; i < arrAnswer.length; i++) {
-      if (arrAnswer[i] === letter) {
-        stt = i;
-      }
-    }
-    arrAnswer[stt] = "*";
-    console.log(stt);
-    // Display cell suggest random
-    cellAnswer.forEach((cell) => {
-      if (cell.dataset.stt == stt) {
-        cell.innerText = letter;
-      }
-    });
-    sg--;
-    if (sg >= 0) {
+      // Giảm số lần gợi ý
+      sg--;
       suggestEL.textContent = sg;
-    }
-    cellAnswer.forEach((cell) => {
-      if (cell.innerText === "") {
-        arrCell.push(cell);
+      // Kiểm tra nếu đã điền hết các ô
+      emptyCells = 0; // Đặt lại biến emptyCells
+      cellAnswer.forEach((cell) => {
+        if (cell.innerText === "" && !cell.classList.contains("space")) {
+          emptyCells++;
+        }
+      });
+      // Kiểm tra lại nếu đã hoàn thành
+      if (emptyCells === 0) {
+        disableBtnSuggest();
+        checkAnswer(cellAnswer);
       }
-    });
-    if (arrCell.length === 0) {
-      disableBtnSuggest();
-      checkAnswer(cellAnswer);
+    } else if (sg === 0) {
+      suggestFailSound.play();
+      alert("Không được sử dụng gợi ý");
+      suggestEL.textContent = 0;
     }
   }
 });
@@ -741,6 +753,7 @@ function disableBtnSuggest() {
   isSgDisabled = false;
   btnSuggest.classList.add("disabled");
 }
+
 function enableBtnSuggest() {
   isSgDisabled = true;
   btnSuggest.classList.remove("disabled");
@@ -760,6 +773,8 @@ const restartGame = function () {
   sessionStorage.clear();
 
   // Reset game state variables
+  answered = false;
+  enableBtnSuggest();
   currentTeamIndex = 0;
   score = 0;
   q = 1;
@@ -806,6 +821,7 @@ const restartGame = function () {
 };
 
 // restart game
+// 8.14.12 - Gộp nút chơi lại ở (cuối game) với nút chơi lại toàn bộ trong game.
 document.querySelectorAll(".btn-restart").forEach((button) => {
   button.addEventListener("click", () => {
     // PHân biệt giữa nút chơi lại toàn bộ game # chơi lại 8.14.12
@@ -845,7 +861,8 @@ function restartCurrentTeam() {
   sg = 3;
   time = 30;
   timeTeam = 0;
-
+  answered = false;
+  enableBtnSuggest();
   scoreEl.textContent = score;
   suggestEL.textContent = sg;
   nowQuestionNumEl.textContent = q;
@@ -880,6 +897,7 @@ btnRestartTeam.addEventListener("click", function () {
 
 btnConfirmRestartGroup.addEventListener("click", function () {
   buttonPushSound.play();
+  countDownSound.pause();
   restartCurrentTeam();
   warningModalRestartGroup.hide();
 });
