@@ -58,7 +58,7 @@
                     <div><strong id="teamName"></strong></div>
                     <div>Câu hỏi số <strong id="nowQuestionNum"></strong></div>
                     <div>Điểm: <strong class="score">0</strong></div>
-                    <div>Gơi ý còn <strong class="suggest">3</strong> lần</div>
+                    <div>Gợi ý còn <strong class="suggest">3</strong> lần</div>
                     <div>Thời gian còn lại: <strong class="time">30 s</strong></div>
                 </header>
                 <section id="image_question">
@@ -73,7 +73,7 @@
                     <p class="answer_result"></p>
                 </section>
                 <section id="buttons" class="mb-4">
-                    <button class="btn btn-restart">Chơi lại (Toàn bô game)</button>
+                    <button class="btn btn-restart">Chơi lại (Toàn bộ game)</button>
                     <button class="btn btn_restart_group">Chơi lại (Nhóm hiện tại)</button>
                     <button class="btn btn_suggest">Gợi ý</button>
                     <button class="btn btn_next">Tiếp theo</button>
@@ -105,9 +105,9 @@
 
             <!-- Thông báo mỗi khi team chơi xong. -->
             <div id="reportIntro" class="report">
-      <span id="close2" class="close">
-        <i class="far fa-window-close"></i>
-      </span>
+                <span id="close2" class="close">
+                  <i class="far fa-window-close"></i>
+                </span>
                 <h2>Kết quả</h2>
                 <div class="content">
                     <div class="content-sub">
@@ -171,30 +171,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Modal notification -->
-            <div class="modal fade" id="notification" tabindex="-1" aria-labelledby="notificationTitle"
-                 aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title fs-5 fw-bold" id="notificationTitle"></h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                        <h5 id="modal-body"></h5>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                                Từ chối
-                            </button>
-                            <button type="button" class="btn btn-success btn-agree">
-                                Đồng ý
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -219,8 +195,6 @@
         </div>
     </div>
 </div>
-
-
 <!-- Màn hình cảnh báo khi bấm restart nhóm hiện tại -->
 <div class="modal fade" id="warningModalRestartGroup" tabindex="-1" aria-labelledby="warningModalLabel"
      aria-hidden="true">
@@ -238,6 +212,29 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
                 <button type="button" class="btn btn-warning" id="confirmRestart">Chơi lại</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal notification -->
+<div class="modal fade" id="notification" tabindex="-1" aria-labelledby="notificationTitle"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-warning" id="notificationTitle">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Cảnh báo
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-body"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Từ chối</button>
+                <button type="button" class="btn btn-warning btn-agree">Đồng ý</button>
             </div>
         </div>
     </div>
