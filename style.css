@@ -103,6 +103,10 @@ body {
     background-color: #f1e8e8;
 }
 
+#teamInfo .teamInputDiv .inputError {
+  background-color: #ea2525;
+}
+
 #settingsScreen .footer {
     text-align: center;
 }
@@ -295,13 +299,21 @@ body::before {
     z-index: -1; /* Đảm bảo lớp phủ ở phía sau nội dung */
 }
 
+/*header {*/
+/*    margin-top: 20px;*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+
+/*    gap: 60px;*/
+/*}*/
 header {
     margin-top: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    gap: 60px;
+    gap: 60px; /* Khoảng cách mặc định giữa các phần tử */
+    flex-wrap: wrap; /* Cho phép các phần tử xuống dòng khi không đủ không gian */
 }
 
 #image_question {
@@ -342,9 +354,11 @@ header {
     list-style-type: none;
     align-items: center;
     justify-content: center;
+    margin-top: 20px;
 }
 
 .word {
+    margin: 5px;
     margin-right: 10px;
     width: 40px;
     height: 40px;
@@ -380,7 +394,7 @@ header {
 }
 
 #buttons {
-    margin-top: 80px;
+    margin-top: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -483,4 +497,33 @@ header {
 #image_question .image_question {
     width: 250px;
     height: 175px;
+}
+/* Mobile: kích thước nhỏ hơn hoặc bằng 768px */
+@media (max-width: 768px) {
+    #image_question {
+        padding-top: 20px; /* Giảm padding-top cho màn hình nhỏ */
+    }
+    header {
+        gap: 20px; /* Giảm khoảng cách giữa các phần tử trong header */
+        padding-top: 5px; /* Padding trên cho header */
+        padding-bottom: 5px; /* Padding dưới cho header */
+    }
+    header > div {
+        margin-bottom: 4px; /* Khoảng cách giữa các phần tử trong header */
+    }
+}
+
+/* Tablet: kích thước từ 769px đến 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+    #image_question {
+        padding-top: 30px; /* Giảm padding-top cho màn hình tablet */
+    }
+    header {
+        gap: 40px; /* Khoảng cách giữa các phần tử trong header cho tablet */
+        padding-top: 10px; /* Padding trên cho header */
+        padding-bottom: 10px; /* Padding dưới cho header */
+    }
+    header > div {
+        margin-bottom: 6px; /* Khoảng cách giữa các phần tử trong header */
+    }
 }
