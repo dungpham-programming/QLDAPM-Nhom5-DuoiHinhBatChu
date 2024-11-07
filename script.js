@@ -181,45 +181,6 @@ function goBackToStart() {
 const setStartStateByTeamIndex = function (index) {
 };
 
-// Ham dem nguoc thoi gian
-const countdown = function () {
-    const getTime = function () {
-        if (isCountdownPaused) return;
-        if (time < 0 && q <= nowPack.length) {
-            enableBtnSuggest();
-            nextQuestion();
-            // suggestEL.textContent = sg;
-            timeEl.textContent = "30 s";
-            intervalID = setInterval(getTime, 1000);
-        } else if (time === 0 && q > nowPack.length) {
-            timeEl.textContent = "0 s";
-        } else {
-            timeEl.textContent = time + " s";
-            time--;
-        }
-        if (time < 11 && time > 0) {
-            if (countDownSound.paused) {
-                countDownSound.play().catch((error) => {
-                    console.error("Lỗi khi phát âm thanh: ", error);
-                });
-            }
-        }
-        if (time < 0) {
-            if (!countDownSound.paused) {
-                countDownSound.pause(); // Dừng âm thanh khi dưới 0 giây
-                countDownSound.currentTime = 0; // Đặt lại vị trí âm thanh về đầu
-            }
-            // Thay đổi màu khi thời gian <= 10
-            if (time <= 10) {
-                timeEl.style.color = "red";
-            } else {
-                timeEl.style.color = "black";
-            }
-        }
-        intervalID = setInterval(getTime, 1000);
-    }
-}
-
 const updateRankingUi = function () {
     const teams = updateRanking();
     const records = document.querySelectorAll(".ranking .grid-record");
@@ -489,6 +450,45 @@ const checkAnswer = function (cellAnswer) {
 
 // Biến cờ để kiểm soát việc tạm dừng countdown 8.14.15.
 let isCountdownPaused = false;
+
+// Ham dem nguoc thoi gian
+const countdown = function () {
+    const getTime = function () {
+        if (isCountdownPaused) return;
+        if (time < 0 && q <= nowPack.length) {
+            enableBtnSuggest();
+            nextQuestion();
+            // suggestEL.textContent = sg;
+            timeEl.textContent = "30 s";
+            intervalID = setInterval(getTime, 1000);
+        } else if (time === 0 && q > nowPack.length) {
+            timeEl.textContent = "0 s";
+        } else {
+            timeEl.textContent = time + " s";
+            time--;
+        }
+        if (time < 11 && time > 0) {
+            if (countDownSound.paused) {
+                countDownSound.play().catch((error) => {
+                    console.error("Lỗi khi phát âm thanh: ", error);
+                });
+            }
+        }
+        if (time < 0) {
+            if (!countDownSound.paused) {
+                countDownSound.pause(); // Dừng âm thanh khi dưới 0 giây
+                countDownSound.currentTime = 0; // Đặt lại vị trí âm thanh về đầu
+            }
+            // Thay đổi màu khi thời gian <= 10
+            if (time <= 10) {
+                timeEl.style.color = "red";
+            } else {
+                timeEl.style.color = "black";
+            }
+        }
+        intervalID = setInterval(getTime, 1000);
+    }
+}
 
 // Function next question
 const nextQuestion = function () {
