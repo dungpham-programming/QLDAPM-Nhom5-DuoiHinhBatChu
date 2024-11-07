@@ -80,8 +80,7 @@ body {
 
 #teamInfo .teamInputDiv .inputName {
     background-color: #ffffff;
-    border: 1px solid none;
-
+    border: 1px solid;
     margin: 0;
     padding: 0;
     color: #383838;

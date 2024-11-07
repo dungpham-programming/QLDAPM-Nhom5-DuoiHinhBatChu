@@ -374,9 +374,11 @@ const checkAnswer = function (cellAnswer) {
         statusResultEl.classList.remove("incorrect");
         statusResultEl.classList.add("correct");
         statusResultEl.textContent = "Chính Xác!";
+        countDownSound.pause();
         correctSound.play();
     } else {
         errorSound.play();
+        countDownSound.pause();
         statusResultEl.classList.remove("correct");
         statusResultEl.classList.add("incorrect");
         statusResultEl.textContent = "Không Chính Xác!";
@@ -426,11 +428,13 @@ const countdown = function () {
 
 // Function next question
 const nextQuestion = function () {
-    countDownSound.pause();
     clearInterval(intervalID);
+
     if (q < endQ) {
-        answered = false;       // Đánh dấu là chưa trả lời khi đến câu hỏi tiếp theo
-        buttonPushSound.play();
+        answered = false; // Đánh dấu là chưa trả lời khi đến câu hỏi tiếp theo
+        buttonPushSound.play(); // Phát âm thanh khi chuyển câu hỏi
+
+        // Cập nhật các thông tin và phần tử cho câu hỏi tiếp theo
         q++;
         const nowQuestion = nowPack[q - 1];
         imageEl.src = "";
@@ -441,18 +445,27 @@ const nextQuestion = function () {
         resultEl.style.display = "none";
         nowQuestionNumEl.textContent = `${q}`;
         arrAnswer = getArrayCharacter(nowQuestion.answer);
-        time = 30;
+        time = 30; // Đặt lại thời gian cho câu hỏi tiếp theo
+
     } else {
-        console.log("count down")
+        // Phát âm thanh hoàn thành trong 3 giây rồi dừng lại
         teamDoneSound.play();
-        const elapsedTime = stopTimer();
-        saveScoreAndTime(score, elapsedTime); //Lưu điểm cho team1.
-        updateRankingUi();
-        reportEnding();
+        setTimeout(() => {
+            teamDoneSound.pause();
+            teamDoneSound.currentTime = 0;
+        }, 3000); // Dừng âm thanh sau 3 giây
+
+        const elapsedTime = stopTimer(); // Dừng bộ đếm và lấy thời gian
+        saveScoreAndTime(score, elapsedTime); // Lưu điểm và thời gian
+        updateRankingUi(); // Cập nhật bảng xếp hạng
+        reportEnding(); // Kết thúc báo cáo
+
+        // Hiển thị giao diện báo cáo kết thúc
         overlay.style.display = "block";
         reportIntro.style.display = "block";
     }
-}
+};
+
 
 // Xử lý khi teams chơi xong.
 closeI.onclick = function () {
@@ -469,6 +482,7 @@ function resetScoreAndQ() {
 
 function reportEnding() {
     clearInterval(intervalID);
+    countDownSound.pause();
     const teams = JSON.parse(sessionStorage.getItem("teams"));
     reportScorer.textContent = `${teams[currentTeamIndex].score} điểm`;
     reportTimer.textContent = `${teams[currentTeamIndex].time} giây`;
@@ -594,7 +608,9 @@ btnNext.addEventListener("click", function () {
     } else {
         enableBtnSuggest();
         nextQuestion();
-        countdown();
+        if (q < endQ) {
+            countdown();
+        }
     }
 });
 
