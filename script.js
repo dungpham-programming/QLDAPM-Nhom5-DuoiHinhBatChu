@@ -295,18 +295,18 @@ function shuffleArray(array) {
 
 // Hiển thị ô chứa ký tự cho người chơi lựa chọn <8.2.2>
 const displayCellsSelect = function (arrCharacter) {
-  let arrCellsSelect = [];
-  arrCellsSelect = arrCharacter.filter((c) => c !== " ");
-  let len = arrCellsSelect.length;
-  for (let i = 0; i < len; i++) {
-    arrCellsSelect.push(getRandomLetter());
-  }
-  // console.log(arrCellsSelect);
-  const arrCellsShuff = shuffleArray(arrCellsSelect);
-  for (let i = 0; i < arrCellsShuff.length; i++) {
-    let html = `<li class="word" data-cell='${i}'>${arrCellsShuff[i]}</li>`;
-    selectWordEl.innerHTML += html;
-  }
+    let arrCellsSelect = [];
+    arrCellsSelect = arrCharacter.filter((c) => c !== " ");
+    let len = arrCellsSelect.length;
+    for (let i = 0; i < len; i++) {
+        arrCellsSelect.push(getRandomLetter());
+    }
+    // console.log(arrCellsSelect);
+    const arrCellsShuff = shuffleArray(arrCellsSelect);
+    for (let i = 0; i < arrCellsShuff.length; i++) {
+        let html = `<li class="word col-4 col-md-3 col-lg-2 " data-cell='${i}'>${arrCellsShuff[i]}</li>`;
+        selectWordEl.innerHTML += html;
+    }
 };
 
 // Hiển thị ô trống dành cho câu trả lời.
@@ -435,13 +435,12 @@ const countdown = function () {
         countDownSound.pause(); // Dừng âm thanh khi dưới 0 giây
         countDownSound.currentTime = 0; // Đặt lại vị trí âm thanh về đầu
       }
-    }
-    if (time < 6) {
-      timeEl.style.color = "red";
-    }
-    if (time > 5) {
-      timeEl.style.color = "black";
-    }
+    // Thay đổi màu khi thời gian <= 10
+        if (time <= 10) {
+            timeEl.style.color = "red";
+        } else {
+            timeEl.style.color = "black";
+        }
   };
   intervalID = setInterval(getTime, 1000);
 };

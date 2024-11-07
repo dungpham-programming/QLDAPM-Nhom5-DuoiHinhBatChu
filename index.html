@@ -57,37 +57,36 @@
       </div>
     </div>
 
-    <div class="playing" style="display: none">
-      <div class="container">
-        <h1 class="title text-center pt-3 mb-3">Trò chơi Đuổi hình bắt chữ</h1>
+<div class="playing" style="display: none">
+    <div class="container">
+        <h1 class="title text-center pt-3 mb-3 ">Trò chơi Đuổi hình bắt chữ</h1>
         <div class="d-flex g-0">
-          <div class="col-9 display">
-            <header class="px-2">
-              <div><strong id="teamName"></strong></div>
-              <div>Câu hỏi số <strong id="nowQuestionNum"></strong></div>
-              <div>Điểm: <strong class="score">0</strong></div>
-              <div>Gợi ý còn <strong class="suggest">3</strong> lần</div>
-              <div>Thời gian còn lại: <strong class="time">30 s</strong></div>
-            </header>
-            <section id="image_question">
-              <img class="image_question" src="" alt="image question 1" />
-            </section>
-            <section id="answer"></section>
-            <section id="list_words">
-              <ul class="select_word"></ul>
-            </section>
-            <section id="result">
-              <p class="status_result correct"></p>
-              <p class="answer_result"></p>
-            </section>
-            <section id="buttons" class="mb-4">
-              <button class="btn btn-restart">Chơi lại (Toàn bộ game)</button>
-              <button class="btn btn_restart_group">
-                Chơi lại (Nhóm hiện tại)
-              </button>
-              <button class="btn btn_suggest">Gợi ý</button>
-              <button class="btn btn_next">Tiếp theo</button>
-            </section>
+            <div class="col-9 display">
+                <header class="px-2 py-3 d-flex justify-content-between align-items-center flex-wrap">
+                        <div><strong id="teamName"></strong></div>
+                        <div class="me-4">Câu hỏi số <strong id="nowQuestionNum"></strong></div>
+                        <div class="me-4">Điểm: <strong class="score">0</strong></div>
+                        <div class="me-4">Gợi ý còn <strong class="suggest">3</strong> lần</div>
+                        <div>Thời gian còn lại: <strong class="time">30 s</strong></div>
+                </header>
+                <section id="image_question">
+                    <img class="image_question" src="" alt="image question 1"/>
+                </section>
+                <section id="answer"></section>
+                <section id="list_words">
+                    <ul class="select_word row"></ul>
+                </section>
+                <section id="result">
+                    <p class="status_result correct"></p>
+                    <p class="answer_result"></p>
+                </section>
+                <section id="buttons" class="mb-4">
+                    <button class="btn btn-restart">Chơi lại (Toàn bộ game)</button>
+                    <button class="btn btn_restart_group">Chơi lại (Nhóm hiện tại)</button>
+                    <button class="btn btn_suggest">Gợi ý</button>
+                    <button class="btn btn_next">Tiếp theo</button>
+                </section>
+            </div>
           </div>
 
           <div class="col-3 ms-4 ranking">
