@@ -181,6 +181,47 @@ function goBackToStart() {
 const setStartStateByTeamIndex = function (index) {
 };
 
+const updateRankingUi = function () {
+    const teams = updateRanking();
+    const records = document.querySelectorAll(".ranking .grid-record");
+    records.forEach((record) => {
+        record.innerHTML = ""; // Xóa toàn bộ HTML bên trong thẻ
+    });
+    updateRankingHtml(teams, ".ranking");
+};
+
+const updateRanking = function () {
+    // Không cập nhật lại vào session, chỉ thay đổi trên biến của mảng
+    const teams = JSON.parse(sessionStorage.getItem("teams"));
+    teams.sort((a, b) => b.score - a.score);
+    return teams;
+};
+
+const updateRankingHtml = function (teams, elementTag) {
+    for (let i = 0; i < teams.length; i++) {
+        const record = document.querySelector(
+            `${elementTag} .grid-record[data-rank="${i + 1}"]`
+        );
+        if (record) {
+            record.style.display = "grid";
+            record.innerHTML = `
+                <i class="fa-solid fa-medal ps-1" style="color: ${
+                teams[i].score >= 0 ? "#FFD43B" : "red"
+            }; font-size: 24px"></i>
+                <div class="rank">
+                    ${i + 1}
+                </div>
+                <div class="name">
+                    ${teams[i].name}
+                </div>
+                <div class="score">
+                    ${teams[i].score}
+                </div>
+            `;
+        }
+    }
+};
+
 const startGame = function () {
     // Lấy lại thông tin từ Session Storage mới nhất.
     answered = false;
@@ -489,39 +530,6 @@ const countdown = function () {
         }
     };
 
-
-// Xử lý khi teams chơi xong.
-    closeI.onclick = function () {
-        countDownSound.pause();
-        clearInterval(intervalID);
-        if (q < endQ) {
-            isCountdownPaused = false; // Mở lại countdown cho câu hỏi tiếp theo
-            answered = false; // Đánh dấu là chưa trả lời khi đến câu hỏi tiếp theo
-            buttonPushSound.play();
-            q++;
-            const nowQuestion = nowPack[q - 1];
-            imageEl.src = "";
-            answerEl.innerHTML = "";
-            selectWordEl.innerHTML = "";
-            displayQuestion(nowQuestion);
-            selectWordEl.style.display = "flex";
-            resultEl.style.display = "none";
-            nowQuestionNumEl.textContent = `${q}`;
-            arrAnswer = getArrayCharacter(nowQuestion.answer);
-            arrCharacterAnswer = arrAnswer.filter((el) => el != " "); // Cập nhật lại mảng Ans gợi ý khi sang câu hỏi kế tiếp.
-            time = 30;
-        } else {
-            isCountdownPaused = true; // Tạm dừng countdown ở câu hỏi cuối
-            teamDoneSound.play();
-            const elapsedTime = stopTimer();
-            saveScoreAndTime(score, elapsedTime); //Lưu điểm cho team1.
-            updateRankingUi();
-            reportEnding();
-            overlay.style.display = "block";
-            reportIntro.style.display = "block";
-        }
-    };
-
     function resetScoreAndQ() {
         score = 0;
         q = 0; // Do khi gọi nextQuestion, q sẽ tăng thêm 1 ngay lần gọi => q = 0
@@ -584,47 +592,6 @@ const countdown = function () {
 // Hàm đóng modal
     const closeModal = function () {
         modal.hide();
-    };
-
-    const updateRanking = function () {
-        // Không cập nhật lại vào session, chỉ thay đổi trên biến của mảng
-        const teams = JSON.parse(sessionStorage.getItem("teams"));
-        teams.sort((a, b) => b.score - a.score);
-        return teams;
-    };
-
-    const updateRankingHtml = function (teams, elementTag) {
-        for (let i = 0; i < teams.length; i++) {
-            const record = document.querySelector(
-                `${elementTag} .grid-record[data-rank="${i + 1}"]`
-            );
-            if (record) {
-                record.style.display = "grid";
-                record.innerHTML = `
-                <i class="fa-solid fa-medal ps-1" style="color: ${
-                    teams[i].score >= 0 ? "#FFD43B" : "red"
-                }; font-size: 24px"></i>
-                <div class="rank">
-                    ${i + 1}
-                </div>
-                <div class="name">
-                    ${teams[i].name}
-                </div>
-                <div class="score">
-                    ${teams[i].score}
-                </div>
-            `;
-            }
-        }
-    };
-
-    const updateRankingUi = function () {
-        const teams = updateRanking();
-        const records = document.querySelectorAll(".ranking .grid-record");
-        records.forEach((record) => {
-            record.innerHTML = ""; // Xóa toàn bộ HTML bên trong thẻ
-        });
-        updateRankingHtml(teams, ".ranking");
     };
 
     const showTotalRanking = function () {
