@@ -369,39 +369,41 @@ const updateScore = function () {
 // Function check answer from client
 //
 const checkAnswer = function (cellAnswer) {
-  // Đánh dấu là đã trả lời
-  answered = true;
-  selectWordEl.style.display = "none";
-  resultEl.style.display = "block";
-  // Get answer of player
-  console.log("finish");
-  let answer = "";
-  // const cellAnswer = document.querySelectorAll(".cell_answer");
-  cellAnswer.forEach((cell) => {
-    answer += cell.innerText;
-  });
+    // Đánh dấu là đã trả lời
+    answered = true;
+    selectWordEl.style.display = "none";
+    resultEl.style.display = "block";
+    // Get answer of player
+    console.log("finish");
+    let answer = "";
+    // const cellAnswer = document.querySelectorAll(".cell_answer");
+    cellAnswer.forEach((cell) => {
+        answer += cell.innerText;
+    });
 
-  const nowQuestion = nowPack[q - 1];
-  // Convert original answer in system => Answer not contains space character
-  const strCharacter = convertAnswerInSystem(nowQuestion.answer);
-  clearInterval(intervalID);
+    const nowQuestion = nowPack[q - 1];
+    // Convert original answer in system => Answer not contains space character
+    const strCharacter = convertAnswerInSystem(nowQuestion.answer);
+    clearInterval(intervalID);
 
-  if (answer === strCharacter) {
-    // Initial score is 10. Handle score when time over 15s in countdown()
-    updateScore();
-    statusResultEl.classList.remove("incorrect");
-    statusResultEl.classList.add("correct");
-    statusResultEl.textContent = "Chính Xác!";
-    correctSound.play();
-  } else {
-    errorSound.play();
-    statusResultEl.classList.remove("correct");
-    statusResultEl.classList.add("incorrect");
-    statusResultEl.textContent = "Không Chính Xác!";
-  }
-  console.log(answered);
-  // Display answer
-  answerResultEl.textContent = `Đáp án là: ${nowQuestion.answer}`;
+    if (answer === strCharacter) {
+        // Initial score is 10. Handle score when time over 15s in countdown()
+        updateScore();
+        statusResultEl.classList.remove("incorrect");
+        statusResultEl.classList.add("correct");
+        statusResultEl.textContent = "Chính Xác!";
+        countDownSound.pause();
+        correctSound.play();
+    } else {
+        errorSound.play();
+        countDownSound.pause();
+        statusResultEl.classList.remove("correct");
+        statusResultEl.classList.add("incorrect");
+        statusResultEl.textContent = "Không Chính Xác!";
+    }
+    console.log(answered);
+    // Display answer
+    answerResultEl.textContent = `Đáp án là: ${nowQuestion.answer}`;
 };
 
 // Biến cờ để kiểm soát việc tạm dừng countdown 8.14.15.
@@ -447,6 +449,47 @@ const countdown = function () {
 
 // Function next question
 const nextQuestion = function () {
+    clearInterval(intervalID);
+
+    if (q < endQ) {
+        answered = false; // Đánh dấu là chưa trả lời khi đến câu hỏi tiếp theo
+        buttonPushSound.play(); // Phát âm thanh khi chuyển câu hỏi
+
+        // Cập nhật các thông tin và phần tử cho câu hỏi tiếp theo
+        q++;
+        const nowQuestion = nowPack[q - 1];
+        imageEl.src = "";
+        answerEl.innerHTML = "";
+        selectWordEl.innerHTML = "";
+        displayQuestion(nowQuestion);
+        selectWordEl.style.display = "flex";
+        resultEl.style.display = "none";
+        nowQuestionNumEl.textContent = `${q}`;
+        arrAnswer = getArrayCharacter(nowQuestion.answer);
+        time = 30; // Đặt lại thời gian cho câu hỏi tiếp theo
+
+    } else {
+        // Phát âm thanh hoàn thành trong 3 giây rồi dừng lại
+        teamDoneSound.play();
+        setTimeout(() => {
+            teamDoneSound.pause();
+            teamDoneSound.currentTime = 0;
+        }, 3000); // Dừng âm thanh sau 3 giây
+
+        const elapsedTime = stopTimer(); // Dừng bộ đếm và lấy thời gian
+        saveScoreAndTime(score, elapsedTime); // Lưu điểm và thời gian
+        updateRankingUi(); // Cập nhật bảng xếp hạng
+        reportEnding(); // Kết thúc báo cáo
+
+        // Hiển thị giao diện báo cáo kết thúc
+        overlay.style.display = "block";
+        reportIntro.style.display = "block";
+    }
+};
+
+
+// Xử lý khi teams chơi xong.
+closeI.onclick = function () {
   countDownSound.pause();
   clearInterval(intervalID);
   if (q < endQ) {
@@ -483,13 +526,14 @@ function resetScoreAndQ() {
 }
 
 function reportEnding() {
-  clearInterval(intervalID);
-  const teams = JSON.parse(sessionStorage.getItem("teams"));
-  reportScorer.textContent = `${teams[currentTeamIndex].score} điểm`;
-  reportTimer.textContent = `${teams[currentTeamIndex].time} giây`;
-  currentTeamIndex < teams.length - 1
-    ? (reportNextTeam.textContent = teams[currentTeamIndex + 1].name)
-    : (reportNextTeam.textContent = "None");
+    clearInterval(intervalID);
+    countDownSound.pause();
+    const teams = JSON.parse(sessionStorage.getItem("teams"));
+    reportScorer.textContent = `${teams[currentTeamIndex].score} điểm`;
+    reportTimer.textContent = `${teams[currentTeamIndex].time} giây`;
+    currentTeamIndex < teams.length - 1
+        ? (reportNextTeam.textContent = teams[currentTeamIndex + 1].name)
+        : (reportNextTeam.textContent = "None");
 }
 
 document.getElementById("continue").addEventListener("click", () => {
@@ -603,14 +647,16 @@ const clearPlayingField = function () {
 
 // Khi bấm vào nút Tiếp theo
 btnNext.addEventListener("click", function () {
-  if (!isQuestionCompleted()) {
-    buttonPushSound.play();
-    warningModal.show();
-  } else {
-    enableBtnSuggest();
-    nextQuestion();
-    countdown();
-  }
+    if (!isQuestionCompleted()) {
+        buttonPushSound.play();
+        warningModal.show();
+    } else {
+        enableBtnSuggest();
+        nextQuestion();
+        if (q < endQ) {
+            countdown();
+        }
+    }
 });
 
 // Xử lý khi người dùng xác nhận muốn bỏ qua
