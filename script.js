@@ -199,9 +199,10 @@ const updateRankingHtml = function (teams, elementTag) {
             `${elementTag} .grid-record[data-rank="${i + 1}"]`
         );
         if (record) {
+            const colorHex = getColorMedal(i + 1);
             record.style.display = "grid";
             record.innerHTML = `
-                <i class="fa-solid fa-medal ps-1" style="color: ${teams[i].score >= 0 ? "#FFD43B" : "red"}; font-size: 24px"></i>
+                <i class="fa-solid fa-medal ps-1" style="color: ${colorHex}; font-size: 24px"></i>
                 <div class="rank">
                     ${i + 1}
                 </div>
@@ -216,6 +217,19 @@ const updateRankingHtml = function (teams, elementTag) {
                 </div>
             `;
         }
+    }
+};
+
+const getColorMedal = function (ranking) {
+    switch (ranking) {
+        case 1:
+            return "#FFD43B";
+        case 2:
+            return "#817f7f";
+        case 3:
+            return "#e15a1c";
+        default:
+            return "black";
     }
 };
 
@@ -443,6 +457,10 @@ const checkAnswer = function (cellAnswer) {
     console.log(answered);
     // Display answer
     answerResultEl.textContent = `Đáp án là: ${nowQuestion.answer}`;
+
+    // Update score & ranking
+    saveScoreAndTime(score, timeTeam); // Lưu điểm và thời gian
+    updateRankingUi();
 };
 
 // Biến cờ để kiểm soát việc tạm dừng countdown 8.14.15.
@@ -509,6 +527,8 @@ const nextQuestion = function () {
 
         // Cập nhật các thông tin và phần tử cho câu hỏi tiếp theo
         q++;
+        saveScoreAndTime(score, timeTeam); // Lưu điểm và thời gian
+        updateRankingUi(); // Cập nhật bảng xếp hạng
         const nowQuestion = nowPack[q - 1];
         imageEl.src = "";
         answerEl.innerHTML = "";
