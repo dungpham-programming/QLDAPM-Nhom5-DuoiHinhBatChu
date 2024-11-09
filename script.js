@@ -248,6 +248,7 @@ const startGame = function () {
     console.log(nowPack);
     displayQuestion(nowPack[0]);
     arrAnswer = getArrayCharacter(nowPack[0].answer); // Tạo ra gợi ý
+    enableBtnSuggest();
     countdown();
     timeTeam = 0;
     startTimer();
@@ -484,7 +485,7 @@ const countdown = function () {
         // Điều kiện xử lý khi hết thời gian cho câu hỏi hiện tại
         if (timeRemaining < 0) {
             if (q <= nowPack.length) {
-                enableBtnSuggest();
+                // enableBtnSuggest();
                 nextQuestion();
                 endTime = Date.now() + 30 * 1000; // Đặt lại đếm ngược 30s cho câu hỏi mới
             } else {
@@ -650,7 +651,9 @@ btnNext.addEventListener("click", function () {
         buttonPushSound.play();
         warningModal.show();
     } else {
-        enableBtnSuggest();
+        if (sg > 0) {
+            enableBtnSuggest();
+        }
         nextQuestion();
     }
 });
@@ -658,7 +661,9 @@ btnNext.addEventListener("click", function () {
 // Xử lý khi người dùng xác nhận muốn bỏ qua
 btnConfirmNext.addEventListener("click", function () {
     warningModal.hide();
-    enableBtnSuggest();
+    if (sg > 0) {
+        enableBtnSuggest();
+    }
     nextQuestion();
 });
 
@@ -768,6 +773,9 @@ btnSuggest.addEventListener("click", function () {
             // Giảm số lần gợi ý
             sg--;
             suggestEL.textContent = sg;
+            if (sg === 0) {
+                disableBtnSuggest()
+            }
             // Kiểm tra nếu đã điền hết các ô
             emptyCells = 0; // Đặt lại biến emptyCells
             cellAnswer.forEach((cell) => {
