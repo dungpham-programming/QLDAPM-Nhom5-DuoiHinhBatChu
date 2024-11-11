@@ -19,12 +19,12 @@ const reportNextTeam = document.querySelector("#reportNextTeam");
 const modal = bootstrap.Modal.getOrCreateInstance("#notification");
 const nowQuestionNumEl = document.getElementById("nowQuestionNum");
 const NUM_QUES = 10; //Tạo 10 câu
-const teamDoneSound = new Audio("sounds/team_done.mp3");
-const totalRankingSound = new Audio("sounds/total_ranking.mp3");
-const buttonPushSound = new Audio("sounds/button_push.mp3");
-const suggestOkSound = new Audio("sounds/suggest_ok.mp3");
-const suggestFailSound = new Audio("sounds/suggest_fail.mp3");
-const correctSound = new Audio("sounds/correct.mp3");
+const teamDoneSound = new Audio("./sounds/team_done.mp3");
+const totalRankingSound = new Audio("./sounds/total_ranking.mp3");
+const buttonPushSound = new Audio("./sounds/button_push.mp3");
+const suggestOkSound = new Audio("./sounds/suggest_ok.mp3");
+const suggestFailSound = new Audio("./sounds/suggest_fail.mp3");
+const correctSound = new Audio("./sounds/correct.mp3");
 const btnRestartTeam = document.querySelector(".btn_restart_group");
 const warningModal = bootstrap.Modal.getOrCreateInstance("#warningModal");
 const btnConfirmNext = document.querySelector("#confirmNext");
@@ -32,8 +32,8 @@ const warningModalRestartGroup = bootstrap.Modal.getOrCreateInstance(
     "#warningModalRestartGroup"
 );
 const btnConfirmRestartGroup = document.querySelector("#confirmRestart");
-const errorSound = new Audio("/sounds/error.mp3");
-const countDownSound = new Audio("/sounds/count_down.mp4");
+const errorSound = new Audio("./sounds/error.mp3");
+const countDownSound = new Audio("./sounds/count_down.mp4");
 teamDoneSound.volume = 0.5;
 totalRankingSound.volume = 0.3;
 buttonPushSound.volume = 0.5;
@@ -81,10 +81,16 @@ btnPlaying.addEventListener("click", function () {
     const numTeam = document.getElementById("numTeam").value; // Số lượng đội chơi.
     createTeams(numTeam);
     buttonPushSound.play();
+    //   if (!playing) {
+    // playing = true;
     startZone.style.display = "none";
     playingZone.style.display = "none";
     settingZone.style.display = "flex";
     displayTeams(numTeam);
+
+    // displayQuestion(questions[0]);
+    // countdown();
+    //   }
 });
 
 // Tạo mảng teams từ số lương team người dùng chọn, sau đó lưu vào Session Storage
@@ -101,9 +107,9 @@ function createTeams(numTeam) {
 }
 
 // Tuỳ chỉnh tên của đội chơi tại settingScreens.
-// Tuỳ chỉnh tên của đội chơi tại settingScreens.
 function updatePlayerNames() {
     const teams = JSON.parse(sessionStorage.getItem("teams"));
+
     const inputName = document.querySelectorAll(".inputName");
 
     const nameSet = new Set();
@@ -281,6 +287,7 @@ document.getElementById("fight").addEventListener("click", () => {
         startGame();
     }
 });
+
 // Hàm tạo ra các bộ (pack) câu hỏi cho các team
 const createPacksQuestion = function () {
     if (questions.length < totalTeam * questionsPerTeam) {

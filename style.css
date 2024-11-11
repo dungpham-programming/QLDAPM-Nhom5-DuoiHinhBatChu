@@ -140,7 +140,7 @@ body {
 .pushable {
     position: relative;
     background: transparent;
-    padding: 0px;
+    padding: 0;
     border: none;
     cursor: pointer;
     outline-offset: 4px;
@@ -247,8 +247,8 @@ body {
     position: absolute;
     font-size: 30px;
     padding-right: 4px;
-    right: 0px;
-    top: 0%;
+    right: 0;
+    top: 0;
 }
 
 .report .close:hover {
@@ -277,11 +277,11 @@ body {
 }
 
 .start::before {
-    background-image: url("/images/background-start.jpg") !important;
+    background-image: url("./images/background-start.jpg") !important;
 }
 
 .playing::before {
-    background-image: url("/images/background.jpg") !important;
+    background-image: url("./images/background.jpg") !important;
 }
 
 .start::before,
@@ -496,7 +496,7 @@ header {
 }
 
 .start {
-    background-image: url("images/background-start.jpg");
+    background-image: url("./images/background-start.jpg");
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
