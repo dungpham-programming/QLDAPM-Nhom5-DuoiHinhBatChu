@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
     <link rel="stylesheet" type="text/css" href="style.css"/>
     <title>Đuổi hình bắt chữ</title>
@@ -15,7 +15,7 @@
 <body>
 <div class="start">
     <div class="d-flex flex-column justify-content-center align-items-center">
-        <img src="images/remove-bg-icon-hd.png" alt="" style="width: 800px"/>
+        <img class="logo" src="images/remove-bg-icon-hd.png" alt=""/>
         <div class="selectTeam">
             <label for="numTeam">Số đội tham gia: </label>
             <select name="" id="numTeam">
@@ -34,7 +34,7 @@
 <div id="settingsScreen" class="container" style="display: none">
     <h2>Cài đặt chung</h2>
 
-    <div id="teamInfo">
+    <div id="teamInfo" class="flex-wrap">
         <!-- Xử lý javascript để hiển thị theo số lượng đội -->
     </div>
     <div class="footer">
@@ -51,123 +51,120 @@
 
 <div class="playing" style="display: none">
     <div class="container">
-        <h1 class="title text-center pt-3 mb-3">Trò chơi Đuổi hình bắt chữ</h1>
-        <div class="d-flex g-0">
-            <div class="col-9 display">
-                <header class="px-2">
-                    <div><strong id="teamName"></strong></div>
-                    <div>Câu hỏi số <strong id="nowQuestionNum"></strong></div>
-                    <div>Điểm: <strong class="score">0</strong></div>
-                    <div>Gợi ý còn <strong class="suggest">3</strong> lần</div>
-                    <div>Thời gian còn lại: <strong class="time">30 s</strong></div>
-                </header>
-                <section id="image_question">
-                    <img class="image_question" src="" alt="image question 1"/>
-                </section>
-                <section id="answer"></section>
-                <section id="list_words">
-                    <ul class="select_word"></ul>
-                </section>
-                <section id="result">
-                    <p class="status_result correct"></p>
-                    <p class="answer_result"></p>
-                </section>
-                <section id="buttons" class="mb-4">
-                    <button class="btn btn-restart">Chơi lại (Toàn bộ game)</button>
-                    <button class="btn btn_restart_group">Chơi lại (Nhóm hiện tại)</button>
-                    <button class="btn btn_suggest">Gợi ý</button>
-                    <button class="btn btn_next">Tiếp theo</button>
-                </section>
+        <h1 class="title text-center pt-3 mb-3 ">Trò chơi Đuổi hình bắt chữ</h1>
+        <div class="row flex-lg-nowrap">
+            <div class="col-lg-9 col-12 mb-lg-0 mb-3">
+                <div class="playing-container display">
+                    <header class="info-top mt-2 px-4 py-3 d-flex justify-content-center align-items-center flex-wrap">
+                        <div><strong id="teamName"></strong></div>
+                        <div>Câu hỏi: <strong id="nowQuestionNum"></strong></div>
+                        <div>Điểm: <strong class="score">0</strong></div>
+                        <div>Gợi ý: <strong class="suggest">3</strong></div>
+                        <div>Thời gian còn lại: <strong class="time">30 s</strong></div>
+                    </header>
+                    <section id="image_question">
+                        <img class="image_question" src="" alt="image question 1"/>
+                    </section>
+                    <section id="answer" class="px-2"></section>
+                    <section id="list_words">
+                        <ul class="select_word row px-2"></ul>
+                    </section>
+                    <section id="result">
+                        <p class="status_result correct"></p>
+                        <p class="answer_result"></p>
+                    </section>
+                    <section id="buttons" class="mb-4 px-4">
+                        <button class="btn btn-restart">Chơi lại (Toàn bộ game)</button>
+                        <button class="btn btn_restart_group">Chơi lại (Nhóm hiện tại)</button>
+                        <button class="btn btn_suggest">Gợi ý</button>
+                        <button class="btn btn_next">Tiếp theo</button>
+                    </section>
+                </div>
             </div>
 
-            <div class="col-3 ms-4 ranking">
+            <div class="col-lg-3 col-12 ranking">
                 <div class="card ranking-box mb-3">
                     <div class="card-body">
                         <div class="ranking-title-container mb-4">
-                            <h4 class="ranking-title text-center"><i class="fa-solid fa-ranking-star me-2"
-                                                                     style="color: #FFD43B;"></i>Bảng xếp hạng<i
-                                    class="fa-solid fa-coins ms-2" style="color: #FFD43B;"></i></h4>
+                            <h4 class="ranking-title text-center">
+                                <i class="fa-solid fa-ranking-star me-2" style="color: #ffd43b"></i>
+                                Bảng xếp hạng
+                                <i class="fa-solid fa-coins ms-2" style="color: #ffd43b"></i>
+                            </h4>
                         </div>
                         <div class="ranking-list">
                             <div class="grid-record py-1 mb-1" data-rank="1"
-                                 style="display: none; background: #faf0cb;">
-                            </div>
-                            <div class="grid-record py-1 mb-1" style="display: none;" data-rank="2">
-                            </div>
-                            <div class="grid-record py-1 mb-1" style="display: none;" data-rank="3">
-                            </div>
-                            <div class="grid-record py-1 mb-1" style="display: none;" data-rank="4">
-                            </div>
+                                 style="display: none; background: #faf0cb"></div>
+                            <div class="grid-record py-1 mb-1" data-rank="2"
+                                 style="display: none; background: #d6d1d1"></div>
+                            <div class="grid-record py-1 mb-1" data-rank="3"
+                                 style="display: none; background: #edbeb2"></div>
+                            <div class="grid-record py-1 mb-1" data-rank="4"
+                                 style="display: none;"></div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Thông báo mỗi khi team chơi xong. -->
-            <div id="reportIntro" class="report">
-                <span id="close2" class="close">
-                  <i class="far fa-window-close"></i>
-                </span>
-                <h2>Kết quả</h2>
-                <div class="content">
-                    <div class="content-sub">
-                        <i class="fa-solid fa-bullseye"></i>
-                        <p id="reportScorer" class="fas-solid"></p>
-                    </div>
-                    <div class="content-sub">
-                        <i class="fa-solid fa-clock"></i>
-                        <p id="reportTimer" class="fas-solid"></p>
-                    </div>
-                    <div class="content-sub">
-                        <i class="fa-solid fa-forward"></i>
-                        <p id="reportNextTeam" class="fas-solid"></p>
-                    </div>
-                    <button id="continue" class="pushable">
-                        <span class="shadow"></span>
-                        <span class="edge"></span>
-                        <span class="front"> Sẵn sàng! </span>
-                    </button>
+        <!-- Thông báo mỗi khi team chơi xong. -->
+        <div id="reportIntro" class="report">
+            <h2>Kết quả</h2>
+            <div class="content">
+                <div class="content-sub">
+                    <i class="fa-solid fa-bullseye"></i>
+                    <p id="reportScorer" class="fas-solid"></p>
                 </div>
+                <div class="content-sub">
+                    <i class="fa-solid fa-clock"></i>
+                    <p id="reportTimer" class="fas-solid"></p>
+                </div>
+                <div class="content-sub">
+                    <i class="fa-solid fa-forward"></i>
+                    <p id="reportNextTeam" class="fas-solid"></p>
+                </div>
+                <button id="continue" class="pushable">
+                    <span class="shadow"></span>
+                    <span class="edge"></span>
+                    <span class="front"> Sẵn sàng! </span>
+                </button>
             </div>
+        </div>
 
-            <!-- Lớp nền đục -->
-            <div id="overlay" class="overlay"></div>
+        <!-- Lớp nền đục -->
+        <div id="overlay" class="overlay"></div>
 
-            <!-- Modal Total Ranking -->
-            <div class="modal fade" id="totalRanking" tabindex="-1" aria-labelledby="rankingTitle" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5 text-danger fw-bold" id="rankingTitle">Total Ranking Board</h1>
-                        </div>
-                        <div class="modal-body">
-                            <div class="card ranking-box mb-3">
-                                <div class="card-body">
-                                    <div class="ranking-title-container mb-4">
-                                        <h4 class="ranking-title text-center"><i class="fa-solid fa-ranking-star me-2"
-                                                                                 style="color: #FFD43B;"></i>Bảng xếp
-                                            hạng<i
-                                                    class="fa-solid fa-coins ms-2" style="color: #FFD43B;"></i></h4>
-                                    </div>
-                                    <div class="ranking-list">
-                                        <div class="grid-record py-1 mb-1" data-rank="1"
-                                             style="display: none; background: #faf0cb;">
-                                        </div>
-                                        <div class="grid-record py-1 mb-1" style="display: none;" data-rank="2">
-                                        </div>
-                                        <div class="grid-record py-1 mb-1" style="display: none;" data-rank="3">
-                                        </div>
-                                        <div class="grid-record py-1 mb-1" style="display: none;" data-rank="4">
-                                        </div>
-                                    </div>
+        <!-- Modal Total Ranking -->
+        <div class="modal fade" id="totalRanking" tabindex="-1" aria-labelledby="rankingTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5 text-danger fw-bold" id="rankingTitle">
+                            Total Ranking Board
+                        </h1>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card ranking-box mb-3">
+                            <div class="card-body">
+                                <div class="ranking-title-container mb-4">
+                                    <h4 class="ranking-title text-center">
+                                        <i class="fa-solid fa-ranking-star" style="color: #ffd43b"></i>Bảng xếp hạng<i class="fa-solid fa-coins" style="color: #ffd43b"></i>
+                                    </h4>
+                                </div>
+                                <div class="ranking-list">
+                                    <div class="grid-record py-1 mb-1" data-rank="1"
+                                         style="display: none; background: #faf0cb"></div>
+                                    <div class="grid-record py-1 mb-1" style="display: none; background: #d6d1d1" data-rank="2"></div>
+                                    <div class="grid-record py-1 mb-1" style="display: none; background: #edbeb2" data-rank="3"></div>
+                                    <div class="grid-record py-1 mb-1" style="display: none" data-rank="4"></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-success btn-confirm">
-                                Chơi lại
-                            </button>
-                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-skip-modal="true" class="btn btn-restart">
+                            Chơi lại
+                        </button>
                     </div>
                 </div>
             </div>
@@ -190,7 +187,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
-                <button type="button" class="btn btn-warning" id="confirmNext">Tiếp tục</button>
+                <button type="button" class="btn btn-warning" id="confirmNext">
+                    Tiếp tục
+                </button>
             </div>
         </div>
     </div>
@@ -213,14 +212,12 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
                 <button type="button" class="btn btn-warning" id="confirmRestart">Chơi lại</button>
             </div>
-
         </div>
     </div>
 </div>
 
 <!-- Modal notification -->
-<div class="modal fade" id="notification" tabindex="-1" aria-labelledby="notificationTitle"
-     aria-hidden="true">
+<div class="modal fade" id="notification" tabindex="-1" aria-labelledby="notificationTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">

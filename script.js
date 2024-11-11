@@ -12,10 +12,6 @@ const resultEl = document.querySelector("#result");
 const statusResultEl = document.querySelector(".status_result");
 const answerResultEl = document.querySelector(".answer_result");
 const suggestEL = document.querySelector(".suggest");
-const btnTestModal = document.querySelector(".test-modal");
-const btnAgree = document.querySelector(".btn-agree");
-
-const rankingEl = document.querySelector(".ranking-list");
 const questionsPerTeam = 10;
 const reportScorer = document.querySelector("#reportScorer");
 const reportTimer = document.querySelector("#reportTimer");
@@ -23,12 +19,12 @@ const reportNextTeam = document.querySelector("#reportNextTeam");
 const modal = bootstrap.Modal.getOrCreateInstance("#notification");
 const nowQuestionNumEl = document.getElementById("nowQuestionNum");
 const NUM_QUES = 10; //Tạo 10 câu
-const teamDoneSound = new Audio("/sounds/team_done.mp3");
-const totalRankingSound = new Audio("/sounds/total_ranking.mp3");
-const buttonPushSound = new Audio("/sounds/button_push.mp3");
-const suggestOkSound = new Audio("/sounds/suggest_ok.mp3");
-const suggestFailSound = new Audio("/sounds/suggest_fail.mp3");
-const correctSound = new Audio("/sounds/correct.mp3");
+const teamDoneSound = new Audio("sounds/team_done.mp3");
+const totalRankingSound = new Audio("sounds/total_ranking.mp3");
+const buttonPushSound = new Audio("sounds/button_push.mp3");
+const suggestOkSound = new Audio("sounds/suggest_ok.mp3");
+const suggestFailSound = new Audio("sounds/suggest_fail.mp3");
+const correctSound = new Audio("sounds/correct.mp3");
 const btnRestartTeam = document.querySelector(".btn_restart_group");
 const warningModal = bootstrap.Modal.getOrCreateInstance("#warningModal");
 const btnConfirmNext = document.querySelector("#confirmNext");
@@ -85,16 +81,10 @@ btnPlaying.addEventListener("click", function () {
     const numTeam = document.getElementById("numTeam").value; // Số lượng đội chơi.
     createTeams(numTeam);
     buttonPushSound.play();
-    //   if (!playing) {
-    // playing = true;
     startZone.style.display = "none";
     playingZone.style.display = "none";
     settingZone.style.display = "flex";
     displayTeams(numTeam);
-
-    // displayQuestion(questions[0]);
-    // countdown();
-    //   }
 });
 
 // Tạo mảng teams từ số lương team người dùng chọn, sau đó lưu vào Session Storage
@@ -111,16 +101,35 @@ function createTeams(numTeam) {
 }
 
 // Tuỳ chỉnh tên của đội chơi tại settingScreens.
+// Tuỳ chỉnh tên của đội chơi tại settingScreens.
 function updatePlayerNames() {
     const teams = JSON.parse(sessionStorage.getItem("teams"));
-
     const inputName = document.querySelectorAll(".inputName");
+
+    const nameSet = new Set();
+    let hasDupName = false;
+
     inputName.forEach((input, index) => {
-        if (input.value.trim() !== "") {
-            teams[index].name = input.value;
+        const name = input.value.trim();
+        if (nameSet.has(name)) {
+            hasDupName = true;
+            input.classList.add("inputError");
+        } else {
+            nameSet.add(name);
+            input.classList.remove("inputError");
+        }
+
+        if (!hasDupName && name !== "" && index < teams.length) {
+            teams[index].name = name;
         }
     });
+    // Kiểm tra và hiển thị thông báo lỗi nếu có tên trùng
+    if (hasDupName) {
+        alert("Lỗi tên đội bị trùng lặp. Vui lòng đặt tên khác nhau cho từng đội.");
+        return false;
+    }
     sessionStorage.setItem("teams", JSON.stringify(teams));
+    return true;
 }
 
 // Hiển thị số lượng đội chơi
@@ -162,6 +171,68 @@ function goBackToStart() {
 const setStartStateByTeamIndex = function (index) {
 };
 
+const updateRankingUi = function () {
+    const teams = updateRanking();
+    const records = document.querySelectorAll(".ranking .grid-record");
+    records.forEach((record) => {
+        record.innerHTML = ""; // Xóa toàn bộ HTML bên trong thẻ
+    });
+    updateRankingHtml(teams, ".ranking");
+};
+
+const updateRanking = function () {
+    // Không cập nhật lại vào session, chỉ thay đổi trên biến của mảng
+    const teams = JSON.parse(sessionStorage.getItem("teams"));
+    teams.sort((a, b) => {
+        if (b.score !== a.score) {
+            return b.score - a.score;
+        } else {
+            return a.time - b.time;
+        }
+    });
+    return teams;
+};
+
+const updateRankingHtml = function (teams, elementTag) {
+    for (let i = 0; i < teams.length; i++) {
+        const record = document.querySelector(
+            `${elementTag} .grid-record[data-rank="${i + 1}"]`
+        );
+        if (record) {
+            const colorHex = getColorMedal(i + 1);
+            record.style.display = "grid";
+            record.innerHTML = `
+                <i class="fa-solid fa-medal ps-1" style="color: ${colorHex}; font-size: 24px"></i>
+                <div class="rank">
+                    ${i + 1}
+                </div>
+                <div class="name">
+                    ${teams[i].name}
+                </div>
+                <div class="time">
+                    ${teams[i].time}s
+                </div>
+                <div class="score">
+                    ${teams[i].score}
+                </div>
+            `;
+        }
+    }
+};
+
+const getColorMedal = function (ranking) {
+    switch (ranking) {
+        case 1:
+            return "#FFD43B";
+        case 2:
+            return "#817f7f";
+        case 3:
+            return "#e15a1c";
+        default:
+            return "black";
+    }
+};
+
 const startGame = function () {
     // Lấy lại thông tin từ Session Storage mới nhất.
     answered = false;
@@ -177,6 +248,7 @@ const startGame = function () {
     console.log(nowPack);
     displayQuestion(nowPack[0]);
     arrAnswer = getArrayCharacter(nowPack[0].answer); // Tạo ra gợi ý
+    enableBtnSuggest();
     countdown();
     timeTeam = 0;
     startTimer();
@@ -205,10 +277,10 @@ function saveScoreAndTime(score, time) {
 // Xử lý nút "Sẵn sàng."
 document.getElementById("fight").addEventListener("click", () => {
     buttonPushSound.play();
-    updatePlayerNames();
-    startGame();
+    if (updatePlayerNames()) {
+        startGame();
+    }
 });
-
 // Hàm tạo ra các bộ (pack) câu hỏi cho các team
 const createPacksQuestion = function () {
     if (questions.length < totalTeam * questionsPerTeam) {
@@ -286,7 +358,7 @@ const displayCellsSelect = function (arrCharacter) {
     // console.log(arrCellsSelect);
     const arrCellsShuff = shuffleArray(arrCellsSelect);
     for (let i = 0; i < arrCellsShuff.length; i++) {
-        let html = `<li class="word" data-cell='${i}'>${arrCellsShuff[i]}</li>`;
+        let html = `<li class="word col-4 col-md-3 col-lg-2 " data-cell='${i}'>${arrCellsShuff[i]}</li>`;
         selectWordEl.innerHTML += html;
     }
 };
@@ -374,9 +446,11 @@ const checkAnswer = function (cellAnswer) {
         statusResultEl.classList.remove("incorrect");
         statusResultEl.classList.add("correct");
         statusResultEl.textContent = "Chính Xác!";
+        countDownSound.pause();
         correctSound.play();
     } else {
         errorSound.play();
+        countDownSound.pause();
         statusResultEl.classList.remove("correct");
         statusResultEl.classList.add("incorrect");
         statusResultEl.textContent = "Không Chính Xác!";
@@ -384,54 +458,78 @@ const checkAnswer = function (cellAnswer) {
     console.log(answered);
     // Display answer
     answerResultEl.textContent = `Đáp án là: ${nowQuestion.answer}`;
+
+    // Update score & ranking
+    saveScoreAndTime(score, timeTeam); // Lưu điểm và thời gian
+    updateRankingUi();
 };
 
-// Ham dem nguoc thoi gian
+// Biến cờ để kiểm soát việc tạm dừng countdown 8.14.15.
+let isCountdownPaused = false;
+
 const countdown = function () {
+    let endTime = Date.now() + time * 1000; // Thời gian kết thúc của countdown (30s)
+
     const getTime = function () {
-        if (time < 0 && q <= nowPack.length) {
-            enableBtnSuggest();
-            nextQuestion();
-            // suggestEL.textContent = sg;
-            timeEl.textContent = "30 s";
-            intervalID = setInterval(getTime, 1000);
-        } else if (time === 0 && q > nowPack.length) {
-            timeEl.textContent = "0 s";
+        if (isCountdownPaused) return;
+
+        // Tính toán thời gian còn lại dựa trên thời gian thực
+        const timeRemaining = Math.max(-1, Math.round((endTime - Date.now()) / 1000));
+        time = timeRemaining;
+        if (timeRemaining < 10) {
+            timeEl.textContent = `0${timeRemaining} s`;
         } else {
-            timeEl.textContent = time + " s";
-            time--;
+            timeEl.textContent = timeRemaining + " s";
         }
-        if (time < 11 && time > 0) {
+
+        // Điều kiện xử lý khi hết thời gian cho câu hỏi hiện tại
+        if (timeRemaining < 0) {
+            if (q <= nowPack.length) {
+                // enableBtnSuggest();
+                nextQuestion();
+                endTime = Date.now() + 30 * 1000; // Đặt lại đếm ngược 30s cho câu hỏi mới
+            } else {
+                clearInterval(intervalID);
+                timeEl.textContent = "0 s";
+                return;
+            }
+        }
+
+        // Âm thanh và hiệu ứng màu sắc khi còn <= 10 giây
+        if (timeRemaining <= 10 && timeRemaining >= 0) {
+            timeEl.style.color = "red";
+
             if (countDownSound.paused) {
                 countDownSound.play().catch((error) => {
                     console.error("Lỗi khi phát âm thanh: ", error);
                 });
             }
-        }
-        if (time < 0) {
-            if (!countDownSound.paused) {
-                countDownSound.pause(); // Dừng âm thanh khi dưới 0 giây
-                countDownSound.currentTime = 0; // Đặt lại vị trí âm thanh về đầu
-            }
-        }
-        if (time < 6) {
-            timeEl.style.color = "red";
-        }
-        if (time > 5) {
+        } else {
             timeEl.style.color = "black";
         }
+
+        if (timeRemaining < 0 && !countDownSound.paused) {
+            countDownSound.pause(); // Dừng âm thanh khi hết thời gian
+            countDownSound.currentTime = 0; // Đặt lại vị trí âm thanh về đầu
+        }
     };
+
     intervalID = setInterval(getTime, 1000);
-};
+}
 
 // Function next question
 const nextQuestion = function () {
-    countDownSound.pause();
     clearInterval(intervalID);
+    countDownSound.pause();
+
     if (q < endQ) {
-        answered = false;       // Đánh dấu là chưa trả lời khi đến câu hỏi tiếp theo
-        buttonPushSound.play();
+        answered = false; // Đánh dấu là chưa trả lời khi đến câu hỏi tiếp theo
+        buttonPushSound.play(); // Phát âm thanh khi chuyển câu hỏi
+
+        // Cập nhật các thông tin và phần tử cho câu hỏi tiếp theo
         q++;
+        saveScoreAndTime(score, timeTeam); // Lưu điểm và thời gian
+        updateRankingUi(); // Cập nhật bảng xếp hạng
         const nowQuestion = nowPack[q - 1];
         imageEl.src = "";
         answerEl.innerHTML = "";
@@ -441,24 +539,27 @@ const nextQuestion = function () {
         resultEl.style.display = "none";
         nowQuestionNumEl.textContent = `${q}`;
         arrAnswer = getArrayCharacter(nowQuestion.answer);
-        time = 30;
+        time = 30; // Đặt lại thời gian cho câu hỏi tiếp theo
+        timeEl.style.color = "black";
+        timeEl.textContent = `${time} s`;
+        countdown();
     } else {
-        console.log("count down")
+        // Phát âm thanh hoàn thành trong 3 giây rồi dừng lại
         teamDoneSound.play();
-        const elapsedTime = stopTimer();
-        saveScoreAndTime(score, elapsedTime); //Lưu điểm cho team1.
-        updateRankingUi();
-        reportEnding();
+        setTimeout(() => {
+            teamDoneSound.pause();
+            teamDoneSound.currentTime = 0;
+        }, 3000); // Dừng âm thanh sau 3 giây
+
+        const elapsedTime = stopTimer(); // Dừng bộ đếm và lấy thời gian
+        saveScoreAndTime(score, elapsedTime); // Lưu điểm và thời gian
+        updateRankingUi(); // Cập nhật bảng xếp hạng
+        reportEnding(); // Kết thúc báo cáo
+
+        // Hiển thị giao diện báo cáo kết thúc
         overlay.style.display = "block";
         reportIntro.style.display = "block";
     }
-}
-
-// Xử lý khi teams chơi xong.
-closeI.onclick = function () {
-    buttonPushSound.play();
-    reportIntro.style.display = "none";
-    overlay.style.display = "none";
 };
 
 function resetScoreAndQ() {
@@ -469,6 +570,7 @@ function resetScoreAndQ() {
 
 function reportEnding() {
     clearInterval(intervalID);
+    countDownSound.pause();
     const teams = JSON.parse(sessionStorage.getItem("teams"));
     reportScorer.textContent = `${teams[currentTeamIndex].score} điểm`;
     reportTimer.textContent = `${teams[currentTeamIndex].time} giây`;
@@ -487,14 +589,12 @@ document.getElementById("continue").addEventListener("click", () => {
         currentTeamIndex++;
         reportIntro.style.display = "none";
         displayCurrentTeam();
-        // displayQuestion(questions[0]);
         nowPack = allPacks[currentTeamIndex]; // Cập nhật pack câu hỏi cho đội kế tiếp
         console.log(nowPack);
         sg = 3;
         suggestEL.textContent = sg;
         enableBtnSuggest();
         nextQuestion();
-        countdown(); //Lỗi
         startTimer();
     } else {
         totalRankingSound.play();
@@ -524,47 +624,6 @@ const closeModal = function () {
     modal.hide();
 };
 
-const updateRanking = function () {
-    // Không cập nhật lại vào session, chỉ thay đổi trên biến của mảng
-    const teams = JSON.parse(sessionStorage.getItem("teams"));
-    teams.sort((a, b) => b.score - a.score);
-    return teams;
-};
-
-const updateRankingHtml = function (teams, elementTag) {
-    for (let i = 0; i < teams.length; i++) {
-        const record = document.querySelector(
-            `${elementTag} .grid-record[data-rank="${i + 1}"]`
-        );
-        if (record) {
-            record.style.display = "grid";
-            record.innerHTML = `
-                <i class="fa-solid fa-medal ps-1" style="color: ${
-                teams[i].score >= 0 ? "#FFD43B" : "red"
-            }; font-size: 24px"></i>
-                <div class="rank">
-                    ${i + 1}
-                </div>
-                <div class="name">
-                    ${teams[i].name}
-                </div>
-                <div class="score">
-                    ${teams[i].score}
-                </div>
-            `;
-        }
-    }
-};
-
-const updateRankingUi = function () {
-    const teams = updateRanking();
-    const records = document.querySelectorAll(".ranking .grid-record");
-    records.forEach((record) => {
-        record.innerHTML = ""; // Xóa toàn bộ HTML bên trong thẻ
-    });
-    updateRankingHtml(teams, ".ranking");
-};
-
 const showTotalRanking = function () {
     updateRankingUi();
     reportIntro.style.display = "none";
@@ -592,18 +651,20 @@ btnNext.addEventListener("click", function () {
         buttonPushSound.play();
         warningModal.show();
     } else {
-        enableBtnSuggest();
+        if (sg > 0) {
+            enableBtnSuggest();
+        }
         nextQuestion();
-        countdown();
     }
 });
 
 // Xử lý khi người dùng xác nhận muốn bỏ qua
 btnConfirmNext.addEventListener("click", function () {
     warningModal.hide();
-    enableBtnSuggest();
+    if (sg > 0) {
+        enableBtnSuggest();
+    }
     nextQuestion();
-    countdown();
 });
 
 // Kiểm tra xem câu đố đã hoàn thành chưa
@@ -661,14 +722,13 @@ function shuffle(array) {
     }
 }
 
-
 // Xử lý phần gợi ý câu hỏi. 8.5
 btnSuggest.addEventListener("click", function () {
     const cellAnswer = document.querySelectorAll(".cell_answer");
     // Đếm số ô trống
     let emptyCells = 0;
     cellAnswer.forEach((cell) => {
-        if (cell.innerText === "" && !cell.classList.contains('space')) {
+        if (cell.innerText === "" && !cell.classList.contains("space")) {
             emptyCells++;
         }
     });
@@ -688,15 +748,15 @@ btnSuggest.addEventListener("click", function () {
             // Tạo mảng chứa các ô trống và chữ cái tương ứng
             const emptySlots = [];
             for (const cell of cellAnswer) {
-                const index = cell.getAttribute('data-stt'); // Lấy giá trị của data-stt
-                if (cell.classList.contains('space')) {
+                const index = cell.getAttribute("data-stt"); // Lấy giá trị của data-stt
+                if (cell.classList.contains("space")) {
                     continue; // Nếu có lớp 'space', bỏ qua cell này
                 }
                 // Kiểm tra xem innerText có trống hay không (bao gồm cả khoảng trắng)
                 if (cell.innerText.trim() === "") {
                     emptySlots.push({
                         cell: cell,
-                        index: index
+                        index: index,
                     });
                 }
             }
@@ -713,10 +773,13 @@ btnSuggest.addEventListener("click", function () {
             // Giảm số lần gợi ý
             sg--;
             suggestEL.textContent = sg;
+            if (sg === 0) {
+                disableBtnSuggest()
+            }
             // Kiểm tra nếu đã điền hết các ô
             emptyCells = 0; // Đặt lại biến emptyCells
             cellAnswer.forEach((cell) => {
-                if (cell.innerText === "" && !cell.classList.contains('space')) {
+                if (cell.innerText === "" && !cell.classList.contains("space")) {
                     emptyCells++;
                 }
             });
@@ -744,17 +807,6 @@ function enableBtnSuggest() {
     btnSuggest.classList.remove("disabled");
 }
 
-document.querySelector(".btn-confirm").addEventListener("click", function () {
-    buttonPushSound.play();
-    playingZone.style.display = "none";
-    startZone.style.display = "block";
-    currentTeamIndex = 0;
-    closeTotalRanking();
-    clearPlayingField();
-    clearInterval(intervalID);
-    sessionStorage.clear();
-});
-
 const clearAnswerStatus = function () {
     statusResultEl.classList.remove("incorrect");
     statusResultEl.classList.remove("correct");
@@ -769,6 +821,8 @@ const restartGame = function () {
     sessionStorage.clear();
 
     // Reset game state variables
+    answered = false;
+    enableBtnSuggest();
     currentTeamIndex = 0;
     score = 0;
     q = 1;
@@ -779,6 +833,7 @@ const restartGame = function () {
     allPacks = [];
     nowPack = null;
     arrCharacterAnswer = [];
+    isCountdownPaused = false;
 
     // Clear intervals
     clearInterval(intervalID);
@@ -799,35 +854,42 @@ const restartGame = function () {
 
     // Reset ranking display
     const rankingRecords = document.querySelectorAll(".ranking .grid-record");
-    rankingRecords.forEach(record => {
+    rankingRecords.forEach((record) => {
         record.style.display = "none";
-        record.innerHTML = '';
+        record.innerHTML = "";
     });
 
     // Close any open modals
-    const totalRankingModal = bootstrap.Modal.getOrCreateInstance("#totalRanking");
+    const totalRankingModal =
+        bootstrap.Modal.getOrCreateInstance("#totalRanking");
     totalRankingModal.hide();
 
     // Play sound effect
     buttonPushSound.play();
-}
+};
 
 // restart game
-document.querySelector(".btn-restart").addEventListener("click", () => {
-    // Show confirmation modal before restarting
-    const notificationTitle = document.querySelector("#notificationTitle");
-    const notificationBody = document.querySelector("#modal-body");
-    const btnAgree = document.querySelector(".btn-agree");
+// 8.14.12 - Gộp nút chơi lại ở (cuối game) với nút chơi lại toàn bộ trong game.
+document.querySelectorAll(".btn-restart").forEach((button) => {
+    button.addEventListener("click", () => {
+        // PHân biệt giữa nút chơi lại toàn bộ game # chơi lại 8.14.12
+        const skipModal = button.getAttribute("data-skip-modal");
+        if (skipModal === "true") {
+            restartGame();
+        } else {
+            // Show confirmation modal before restarting
+            const notificationTitle = document.querySelector("#notificationTitle");
+            const notificationBody = document.querySelector("#modal-body");
+            const btnAgree = document.querySelector(".btn-agree");
 
+            notificationTitle.textContent = "Xác nhận khởi động lại";
+            notificationBody.textContent =
+                "Bạn có chắc chắn muốn khởi động lại trò chơi? Toàn bộ tiến trình sẽ bị mất.";
+            btnAgree.setAttribute("data-request", "restart-game");
 
-    notificationTitle.textContent = "Xác nhận khởi động lại";
-    notificationBody.textContent = "Bạn có chắc chắn muốn khởi động lại trò chơi? Toàn bộ tiến trình sẽ bị mất.";
-    btnAgree.setAttribute("data-request", "restart-game");
-    btnAgree.addEventListener("click", function () {
-        countDownSound.pause();
+            openModal();
+        }
     });
-
-    openModal();
 });
 
 const existingClickHandler = document.querySelector(".btn-agree").onclick;
@@ -847,7 +909,8 @@ function restartCurrentTeam() {
     sg = 3;
     time = 30;
     timeTeam = 0;
-
+    answered = false;
+    enableBtnSuggest();
     scoreEl.textContent = score;
     suggestEL.textContent = sg;
     nowQuestionNumEl.textContent = q;
@@ -880,9 +943,55 @@ btnRestartTeam.addEventListener("click", function () {
     warningModalRestartGroup.show();
 });
 
-btnConfirmRestartGroup.addEventListener('click', function () {
+btnConfirmRestartGroup.addEventListener("click", function () {
     buttonPushSound.play();
     countDownSound.pause();
     restartCurrentTeam();
     warningModalRestartGroup.hide();
-})
+});
+
+// Hàm để chuyển đổi text thành icon khi màn hình có kích thước Medium
+function updateButtonIcons() {
+    const buttonRestartAll = document.querySelector('.btn-restart');
+    const buttonRestartGroup = document.querySelector('.btn_restart_group');
+    const buttonSuggest = document.querySelector('.btn_suggest');
+    const buttonNext = document.querySelector('.btn_next');
+    const buttons = [
+        {
+            buttonElement: buttonRestartAll,
+            responsiveText: `<i class="icon-playing fa-solid fa-rotate-right"></i>  (Toàn bộ)`,
+            fullText: 'Chơi lại (Toàn bộ game)'
+        },
+        {
+            buttonElement: buttonRestartGroup,
+            responsiveText: `<i class="icon-playing fa-solid fa-rotate-right"></i>  (Hiện tại)`,
+            fullText: 'Chơi lại (Nhóm hiện tại)'
+        },
+        {
+            buttonElement: buttonSuggest,
+            responsiveText: `<i class="icon-playing fa-solid fa-lightbulb"></i>   (Gợi ý)`,
+            fullText: 'Gợi ý'
+        },
+        {
+            buttonElement: buttonNext,
+            responsiveText: `<i class="icon-playing fa-solid fa-forward"></i> (Tiếp theo)`,
+            fullText: 'Tiếp theo'
+        }
+    ];
+    const screenWidth = window.innerWidth;
+
+    // Kiểm tra kích thước màn hình Medium (768px - 991px)
+    if (screenWidth <= 768) {
+        buttons.forEach(button => {
+            button.buttonElement.innerHTML = button.responsiveText;
+        });
+    } else {
+        buttons.forEach(button => {
+            button.buttonElement.innerHTML = button.fullText;
+        });
+    }
+}
+
+// Gọi hàm khi tải trang và khi thay đổi kích thước màn hình
+window.addEventListener('load', updateButtonIcons);
+window.addEventListener('resize', updateButtonIcons);
