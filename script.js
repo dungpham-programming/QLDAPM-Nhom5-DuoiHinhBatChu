@@ -131,7 +131,10 @@ function updatePlayerNames() {
     });
     // Kiểm tra và hiển thị thông báo lỗi nếu có tên trùng
     if (hasDupName) {
-        alert("Lỗi tên đội bị trùng lặp. Vui lòng đặt tên khác nhau cho từng đội.");
+        const duplicatedModal = bootstrap.Modal.getOrCreateInstance(
+            "#duplicated"
+        );
+        duplicatedModal.show();
         return false;
     }
     sessionStorage.setItem("teams", JSON.stringify(teams));
@@ -746,7 +749,6 @@ btnSuggest.addEventListener("click", function () {
         // Kiểm tra lượt gợi ý
         if (sg === 0) {
             suggestFailSound.play();
-            alert("Bạn đã hết lượt xem gợi ý");
             suggestEL.textContent = 0;
             return;
         }
@@ -797,7 +799,6 @@ btnSuggest.addEventListener("click", function () {
             }
         } else if (sg === 0) {
             suggestFailSound.play();
-            alert("Không được sử dụng gợi ý");
             suggestEL.textContent = 0;
         }
     }
